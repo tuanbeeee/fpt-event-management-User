@@ -332,7 +332,11 @@
                                                     </div>
                                                     <div class="col-sm-9 text-secondary">
                                                         <div class="col-sm-9 text-secondary">
+                                                            <%if (user.getPhoneNumber() != null) {%>
                                                             <input type="text" class="form-control" value="<%=user.getPhoneNumber()%>" name="phone">
+                                                            <%} else {%>
+                                                            <input type="text" class="form-control" name="phone">
+                                                            <%}%>
                                                         </div>
                                                         <div>
                                                             <span style="color:red"><%=(request.getAttribute("ERROR") == null) ? "" : error.getPhoneNumberError()%></span>
@@ -361,12 +365,14 @@
                                                     </div>
                                                     <div class="col-sm-9 text-secondary">
                                                         <select class="form-select " style="color: black" name="usertype">
-                                                            <option  selected disabled>Select type of user</option>
                                                             <%
                                                                 ArrayList<UserDTO> list = new ArrayList<UserDTO>();
                                                                 list = (ArrayList<UserDTO>) request.getAttribute("listUserType");
                                                                 for (UserDTO c : list) {
                                                             %>
+                                                            <%if (c.getTypeName().equals(user.getTypeName())) {%>
+                                                            <option selected="" hidden="" value="<%= user.getTypeID()%>"><%= user.getTypeName()%> </option>
+                                                            <%}%>
                                                             <option value="<%=c.getTypeID()%>" class="others"><%=c.getTypeName()%> </option>
                                                             <%}%>
                                                         </select>
@@ -384,7 +390,11 @@
                                                     <div class="col-sm-9 text-secondary">
 
                                                         <select  class="form-select" style="color: black" name="gender">
-                                                            <option  selected disabled>Select Gender</option>
+                                                            <% if (user.getGender().equals("Male")) {%>
+                                                            <option selected="" hidden="" value="<%= user.getGender()%>"><%= user.getGender()%> </option>
+                                                            <%} else if (user.getGender().equals("Female")) {%>
+                                                            <option selected="" hidden="" value="<%= user.getGender()%>"><%= user.getGender()%> </option>
+                                                            <%}%>
                                                             <option  value="Male" class="others">Male</option>
                                                             <option  value="Female" class="others">Female</option>
                                                         </select>
@@ -405,7 +415,7 @@
                                                     <div class="col-sm-12">
                                                         <a class="btn btn-info " target="__blank" href="UserDataController?page=UserProfileController">Edit</a>&emsp;
                                                         <button type="submit" name="action" value="updateprofile" class="btn btn-info " target="__blank">Save                              
-                                                            <input type="hidden" name="page" value="User_Profile.jsp" />
+                                                            <input type="hidden" name="page" value="UserProfileController" />
                                                         </button>&emsp;
                                                         <a class="btn btn-info " target="__blank" href="MainController?action=profilepage">Cancel</a>
                                                     </div>

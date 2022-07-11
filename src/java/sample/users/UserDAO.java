@@ -1156,7 +1156,7 @@ public class UserDAO {
         }
         return eventList;
     }
-    
+
     public ArrayList<EventPost> getEventByTpye(String type) throws SQLException {
         Connection conn = null;
         PreparedStatement ptm = null;
@@ -1699,29 +1699,33 @@ public class UserDAO {
                 rs = ptm.executeQuery();
 
                 while (rs.next()) {
-
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     String takePlaceDate = rs.getString("takePlaceDate");
-                    String eventID = rs.getString("eventID");
-                    String createDate = rs.getString("evt_CreateDate");
-                    String content = rs.getString("content");
-                    String title = rs.getString("title");
-                    String location = rs.getString("location");
-                    String imgUrlEvent = rs.getString("evt_Img");
-                    String eventTypeID = rs.getString("evt_TypeID");
-                    int numberOfView = rs.getInt("numberOfView");
-                    String speaker = rs.getString("speaker");
-                    String summary = rs.getString("summary");
-                    String statusTypeName = rs.getString("statusTypeName");
-                    String eventTypeName = rs.getString("eventTypeName");
-                    String locationName = rs.getString("locationName");
-                    String approvalDes = rs.getString("approvalDes");
-                    String imgURLCLB = rs.getString("org_Img");
-                    String clbName = rs.getString("org_Name");
-                    String clbDes = rs.getString("org_Description");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+                        String eventID = rs.getString("eventID");
+                        String createDate = rs.getString("evt_CreateDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrlEvent = rs.getString("evt_Img");
+                        String eventTypeID = rs.getString("evt_TypeID");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+                        String imgURLCLB = rs.getString("org_Img");
+                        String clbName = rs.getString("org_Name");
+                        String clbDes = rs.getString("org_Description");
 
-                    EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, imgURLCLB, clbName, clbDes, eventID, orgID, title, content, createDate, imgUrlEvent, numberOfView, summary, status);
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, imgURLCLB, clbName, clbDes, eventID, orgID, title, content, createDate, imgUrlEvent, numberOfView, summary, status);
 
-                    eventList.add(eventPostInfo);
+                        eventList.add(eventPostInfo);
+                    }
                 }
             }
         } catch (Exception e) {
