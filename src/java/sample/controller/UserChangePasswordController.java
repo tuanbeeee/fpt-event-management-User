@@ -21,78 +21,67 @@ import sample.users.UserError;
  *
  * @author Tuan Be
  */
-@WebServlet(name = "UpdateProfileController", urlPatterns = {"/UpdateProfileController"})
-public class UpdateProfileController extends HttpServlet {
+@WebServlet(name = "UserChangePasswordController", urlPatterns = {"/UserChangePasswordController"})
+public class UserChangePasswordController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     private static final String SUCCESS = "UserProfileController";
     private static final String ERROR = "UserDataController";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String url = ERROR;
         response.setContentType("text/html;charset=UTF-8");
+
         HttpSession session = request.getSession();
         boolean check = true;
         UserDAO dao = new UserDAO();
         UserDTO dto = new UserDTO();
         UserError error = new UserError();
         try {
-            String userID = request.getParameter("uid");
-            String userName = request.getParameter("name");
-            String password = request.getParameter("password");
-            String email = request.getParameter("email");
-            UserDTO checkUpdateEmailExist = dao.checkUpdateEmailExist(email, userID);
-            if (dao.checkInputMail(email) == false) {
-                error.setEmailError("Wrong input email!");
-                check = false;
+            String oldPass = request.getParameter("oldPass");
+            if (oldPass == null) {
+                oldPass = request.getParameter("oldPassWhenChange");
             }
-            if (checkUpdateEmailExist != null) {
-                error.setEmailError("Email is exist!");
-                check = false;
-            }
-            String type = request.getParameter("usertype");
-            if (type == null) {
-                error.setTypeIDError("This field CAN NOT be EMPTY!!!");
-                check = false;
-            }
-            String gender = request.getParameter("gender");
-            if (gender == null) {
-                error.setGenderError("This field CAN NOT be EMPTY!!!");
-                check = false;
-            }
-            String phone = request.getParameter("phone");
-            if (dao.checkInputPhoneNumber(phone) == false) {
-                error.setPhoneNumberError("Wrong input phone number!");
-                check = false;
-            }
-            String avatarUrl = request.getParameter("avatar");
+            String newPass = request.getParameter("newPass");
+            String confirmNewPass = request.getParameter("confirmNewPass");
+            String userID = request.getParameter("userID");
+            String oldPassWhenChange = request.getParameter("oldPassWhenChange");
 
-            if (check == false) {
-                String page = request.getParameter("page");
-                request.setAttribute("edit", "Can Edit");
+            String checkPass = dao.authenticateUser(userID, oldPass);
+            if (checkPass.equals("Invalid user !")) {
+                error.setOldPasswordError("Old password is not correct !");
                 request.setAttribute("ERROR", error);
+                request.setAttribute("confirmOldPass", "wrong");
                 url = ERROR;
-            } else {
-                UserDAO updateProflie = new UserDAO();
-                UserDTO user = new UserDTO(userID, userName, password, email, true, type, "US", gender, phone, avatarUrl);
-                updateProflie.updateUserProfile(user);
-                UserDTO getinfodto = new UserDTO();
-                UserDAO getinfodao = new UserDAO();
-                getinfodto = getinfodao.checkUserExist(userID);
-                session.setAttribute("LOGIN_USER", getinfodto);
-                request.setAttribute("Message", "EDIT PROFILE SUCCESSFULLY!");
-                url = SUCCESS;
+            } else if (!checkPass.equals("Invalid user !")) {
+                request.setAttribute("confirmOldPass", "correct");
+                request.setAttribute("getCorrectOldPass", oldPass);
+                url = ERROR;
+                if (oldPassWhenChange != null) {
+                    if (newPass.equals(dao.getPass(userID))) {
+                        error.setPasswordError("The new password must not be the same as the old password !");
+                        check = false;
+                    }
+
+                    if (!confirmNewPass.equals(newPass)) {
+                        error.setPasswordConfirmError("Wrong confirm password !");
+                        check = false;
+                    }
+                    if (check == true) {
+                        dao.changePassword(userID, newPass);
+                        dto = dao.checkUserExist(userID);
+                        session.setAttribute("LOGIN_USER", dto);
+                        request.setAttribute("Message", "CHANGE PASSWORD SUCCESSFULLY!");
+                        url = SUCCESS;
+                    } else {
+                        String page = request.getParameter("page");
+                        request.setAttribute("edit", "Can Change Pass");
+                        request.setAttribute("ERROR", error);
+                        url = ERROR;
+                    }
+                }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

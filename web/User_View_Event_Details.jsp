@@ -506,7 +506,7 @@
                                             <div class="cont">
                                                 <%for (NotificationDTO n : noti) {%>
                                                 <div class="sec new">
-                                                    <a>
+                                                    <a href="MainController?action=viewEventDetail&EVENT_ID=<%=n.eventID%>&username=<%=user.getId()%>">
                                                         <div class="profCont">
                                                             <img class="profile" src="<%=n.orgImg%>">
                                                         </div>
@@ -684,6 +684,9 @@
                                                                     <a type="" data-toggle="reply-form"
                                                                        data-target="<%=cmt.commentID%>" class="fa fa-reply"></a>
                                                                 </span>
+                                                                <%if (cmt.userID.equals(user.getId())) {%>
+                                                                <span style="margin-left: 12px"><a href="MainController?action=deleteComment&userID=<%=user.getId()%>&commentID=<%=cmt.commentID%>&eventID=<%=getEventInfo.getId()%>">Delete</a></span>
+                                                                <%}%>
                                                             </div>
                                                             <div class="comment-content">
                                                                 <%=cmt.content%>
@@ -718,6 +721,9 @@
                                                                 <div class="comment-head">
                                                                     <h6 class="comment-name"><%=reply.fullName%></h6>
                                                                     <span><%=reply.time%></span>
+                                                                    <%if (reply.userID.equals(user.getId())) {%>
+                                                                    <span style="margin-left: 12px"><a href="MainController?action=deleteComment&userID=<%=user.getId()%>&commentID=<%=reply.commentID%>&eventID=<%=getEventInfo.getId()%>">Delete</a></span>
+                                                                    <%}%>
                                                                 </div>
                                                                 <div class="comment-content">
                                                                     <%=reply.content%>

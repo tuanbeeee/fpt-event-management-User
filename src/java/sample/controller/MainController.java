@@ -152,6 +152,12 @@ public class MainController extends HttpServlet {
     private static final String SEARCH_EVENT_BY_USER = "search";
     private static final String SEARCH_EVENT_BY_USER_CONTROLLER = "UserViewEventList";
 
+    private static final String DELETE_COMMENT_BY_USER = "deleteComment";
+    private static final String DELETE_COMMENT_BY_USER_CONTROLLER = "UserDeleteCommentController";
+
+    private static final String CHANGE_PASS_BY_USER = "changePassword";
+    private static final String CHANGE_PASS_BY_USER_CONTROLLER = "UserChangePasswordController";
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -286,9 +292,15 @@ public class MainController extends HttpServlet {
 
             } else if (FEEDBACK_BY_USER.equals(action)) {
                 url = FEEDBACK_BY_USER_CONTROLLER;
-            
+
             } else if (SEARCH_EVENT_BY_USER.equals(action)) {
                 url = SEARCH_EVENT_BY_USER_CONTROLLER;
+
+            } else if (DELETE_COMMENT_BY_USER.equals(action)) {
+                url = DELETE_COMMENT_BY_USER_CONTROLLER;
+            
+            } else if (CHANGE_PASS_BY_USER.equals(action)) {
+                url = CHANGE_PASS_BY_USER_CONTROLLER;
             }
         } catch (Exception e) {
             log("Error at MainController" + e.toString());

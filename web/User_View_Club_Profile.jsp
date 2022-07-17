@@ -151,7 +151,7 @@
                                             <div class="cont">
                                                 <%for (NotificationDTO n : noti) {%>
                                                 <div class="sec new">
-                                                    <a>
+                                                    <a href="MainController?action=viewEventDetail&EVENT_ID=<%=n.eventID%>&username=<%=user.getId()%>">
                                                         <div class="profCont">
                                                             <img class="profile" src="<%=n.orgImg%>">
                                                         </div>

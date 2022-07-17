@@ -7,47 +7,46 @@ package sample.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import sample.notification.NotificationDTO;
 import sample.users.UserDAO;
-import sample.users.UserDTO;
 
 /**
  *
  * @author Tuan Be
  */
-@WebServlet(name = "UserProfileController", urlPatterns = {"/UserProfileController"})
-public class UserProfileController extends HttpServlet {
+@WebServlet(name = "UserDeleteCommentController", urlPatterns = {"/UserDeleteCommentController"})
+public class UserDeleteCommentController extends HttpServlet {
 
-    private static final String SUCCESS = "User_Profile.jsp";
+    private static final String SUCCESS = "UserViewEventDetail";
     private static final String ERROR = "error.jsp";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        
         String url = ERROR;
         try {
-            UserDTO dto = (UserDTO) request.getSession().getAttribute("LOGIN_USER");;
+            String userID = request.getParameter("userID");
+            String commentID = request.getParameter("commentID");
+            String eventID = request.getParameter("eventID");
+
             UserDAO dao = new UserDAO();
 
-            String message = (String) request.getAttribute("Message");
-            System.out.println(message);
-            request.setAttribute("GetMessage", message);
-
-            if (dto.getId() != null) {
-                ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = dao.getNotification(dto.getId());
-                request.setAttribute("GET_NOTIFICATION", getNoti);
-            }
+            dao.deleteComment(userID, commentID);
+            
+            request.setAttribute("userName", userID);
+            request.setAttribute("eventID", eventID);
+            
             url = SUCCESS;
+
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             request.getRequestDispatcher(url).forward(request, response);
         }
     }

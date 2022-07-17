@@ -91,7 +91,7 @@ public class UserDAO {
     private static final String COUNT_NUMBER_OF_VIEW = "UPDATE tblEventPost SET  numberOfView = ? WHERE eventID = ?";
 
     private static final String GET_ALL_ORGANIZATION = "SELECT orgID, orgName, createDate, description, imgUrl, status\n"
-            + "FROM tblOrgPage WHERE statusTypeID ='AP'";
+            + "FROM tblOrgPage WHERE statusTypeID ='AP' AND status='True'";
 
     private static final String GET_ALL_EVENT_INFO_FOR_USER_HOMEPAGE = "SELECT eventID, tblEventPost.orgID as org_ID, tblEventPost.createDate as evt_CreateDate, takePlaceDate, content, title, location, tblEventPost.imgUrl as evt_Img, tblEventPost.eventTypeID as evt_TypeID, numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes, tblOrgPage.imgUrl as org_Img, tblOrgPage.orgName as org_Name, tblOrgPage.description as org_Description \n"
             + "FROM tblEventPost, tblEventType, tblLocation, tblStatusType, tblOrgPage\n"
@@ -176,6 +176,103 @@ public class UserDAO {
             + "                                   FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
             + "                                   WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
             + "                        		   tblEventPost.statusTypeID = tblStatusType.statusTypeID AND  tblEventPost.status = 'True' AND tblStatusType.statusTypeID = 'AP' AND tblEventPost.eventTypeID = ?";
+
+    private static final String DELETE_COMMENT = "UPDATE tblCommentSections SET status = '0' WHERE userID = ? AND commentID = ?";
+
+    private static final String CHANGE_PASSWORD = "UPDATE tblUsers SET password = ? WHERE userID = ?";
+
+    private static final String GET_PASS = "SELECT password FROM tblUsers WHERE userID = ?";
+
+    public String getPass(String userID) throws ClassNotFoundException, SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String passwordDB = null;
+
+
+        try {
+            String sql = GET_PASS;
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, userID);
+            rs = ptm.executeQuery();
+
+            while (rs.next()) {
+                passwordDB = rs.getString("password");
+                if (passwordDB != null) {
+                    return passwordDB;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+
+        return null;
+    }
+
+    public void deleteComment(String userID, String cmtID) throws Exception {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = DELETE_COMMENT;
+        try {
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, userID);
+            ptm.setString(2, cmtID);
+            ptm.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    public void changePassword(String userID, String pass) throws Exception {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = CHANGE_PASSWORD;
+        try {
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, pass);
+            ptm.setString(2, userID);
+            ptm.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
 
     public ArrayList<EventTypeDTO> getAllEventType() throws Exception {
         Connection conn = null;

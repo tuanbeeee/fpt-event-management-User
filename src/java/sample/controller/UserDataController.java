@@ -29,6 +29,7 @@ public class UserDataController extends HttpServlet {
     private static final String AD_MAN_FORM = "Admin_ManagerForm.jsp";
     private static final String US_FORM = "User_Login_And_Register.jsp";
     private static final String US_PROFILE = "UserProfileController";
+    private static final String US_PROFILE_CHANGE_PASS = "changePassword";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,6 +52,7 @@ public class UserDataController extends HttpServlet {
             request.setAttribute("listUserType", listType);
 
             String page = request.getParameter("page");
+
             if (AD_US_FORM.equals(page)) {
                 url = AD_US_FORM;
 
@@ -75,6 +77,18 @@ public class UserDataController extends HttpServlet {
             } else if (US_PROFILE.equals(page)) {
                 url = US_PROFILE;
                 request.setAttribute("edit", "Can Edit");
+
+            } else if (US_PROFILE_CHANGE_PASS.equals(page)) {
+                String confirmOldPass = (String) request.getAttribute("confirmOldPass");
+                request.setAttribute("check", confirmOldPass);
+                
+                String correctOldPass = (String) request.getParameter("correctOldPass");
+                request.setAttribute("correctOldPass", correctOldPass);
+                
+                
+                url = US_PROFILE;
+                request.setAttribute("edit", "Can Change Pass");
+            
             }
         } catch (Exception e) {
             log("Error at UserDataController " + e.toString());

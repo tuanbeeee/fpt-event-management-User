@@ -280,17 +280,21 @@
                                                 </div>
                                             </div>
                                             <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600 mau"></h6>
-
+                                            <div>
+                                                <span style="color:green"><%=(request.getAttribute("GetMessage") == null) ? "" : request.getAttribute("GetMessage")%></span>
+                                            </div>
 
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <a class="btn btn-info " target="__blank"
-                                                       href="MainController?action=dataType&page=UserProfileController">Edit</a>                                                      
+                                                       href="MainController?action=dataType&page=UserProfileController">Edit</a>&emsp;  
+                                                    <a class="btn btn-info " target="__blank"
+                                                       href="MainController?action=dataType&page=changePassword">Change Password</a>                                                    
                                                 </div>
                                             </div>
 
 
-                                            <%} else {%>
+                                            <%} else if (test.equals("Can Edit")) {%>
                                             <form action="MainController" method="POST">
 
 
@@ -413,10 +417,81 @@
                                                     <input type="hidden" value="<%=user.getId()%>" name="uid">
                                                     <input type="hidden" value="<%=user.getPassword()%>" name="password" >
                                                     <div class="col-sm-12">
-                                                        <a class="btn btn-info " target="__blank" href="UserDataController?page=UserProfileController">Edit</a>&emsp;
+                                                        <a class="btn btn-info " target="__blank"
+                                                           href="MainController?action=dataType&page=changePassword">Change Password</a>&emsp;
                                                         <button type="submit" name="action" value="updateprofile" class="btn btn-info " target="__blank">Save                              
                                                             <input type="hidden" name="page" value="UserProfileController" />
                                                         </button>&emsp;
+                                                        <a class="btn btn-info " target="__blank" href="MainController?action=profilepage">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <%} else if (test.equals("Can Change Pass")) {%>
+                                            <form action="MainController" method="POST">
+                                                <%if ((String) request.getAttribute("check") == null || (String) request.getAttribute("check") == "wrong") {%>
+                                                <div class="row">
+                                                    <div class="col-sm-3">
+                                                        <h6 class="m-b-10 f-w-600 mau "><i class="fa fa-user"></i> Old Password</h6>
+                                                    </div>                    
+                                                    <div class="col-sm-9 text-secondary">
+                                                        <div class="col-sm-9 text-secondary">
+                                                            <input type="password" class="form-control" name="oldPass">
+                                                        </div>
+                                                        <div>
+                                                            <span style="color:red"><%=(request.getAttribute("ERROR") == null) ? "" : error.getOldPasswordError()%></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600 mau"></h6>
+                                                <%} else if ((String) request.getAttribute("check") == "correct") {%>
+                                                <div class="row">
+                                                    <div class="col-sm-3">
+                                                        <h6 class="m-b-10 f-w-600 mau "><i class="fa fa-user"></i> New Password</h6>
+                                                    </div>                    
+                                                    <div class="col-sm-9 text-secondary">
+                                                        <div class="col-sm-9 text-secondary">
+                                                            <input type="password" class="form-control" name="newPass">
+                                                        </div>
+                                                        <div>
+                                                            <span style="color:red"><%=(request.getAttribute("ERROR") == null) ? "" : error.getPasswordError()%></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600 mau"></h6>
+                                                <div class="row">
+                                                    <div class="col-sm-3">
+                                                        <h6 class="m-b-10 f-w-600 mau "><i class="fa fa-user"></i> Confirm New Password</h6>
+                                                    </div>                    
+                                                    <div class="col-sm-9 text-secondary">
+                                                        <div class="col-sm-9 text-secondary">
+                                                            <input type="password" class="form-control" name="confirmNewPass">
+                                                        </div>
+                                                        <div>
+                                                            <span style="color:red"><%=(request.getAttribute("ERROR") == null) ? "" : error.getPasswordConfirmError()%></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600 mau"></h6>
+                                                <%}%>
+                                                <div class="row">
+                                                    <input type="hidden" value="<%=user.getId()%>" name="uid">
+                                                    <input type="hidden" value="<%=user.getPassword()%>" name="password" >
+                                                    <div class="col-sm-12">
+                                                        <a class="btn btn-info " target="__blank" href="UserDataController?page=UserProfileController">Edit</a>&emsp;
+                                                        <%if ((String) request.getAttribute("check") == null || (String) request.getAttribute("check") == "wrong") {%>
+                                                        <button type="submit" name="action" value="changePassword" class="btn btn-info " target="__blank">Change
+                                                            <input type="hidden" name="userID" value="<%=user.getId()%>" />
+                                                            <input type="hidden" name="page" value="changePassword" />
+                                                        </button>
+                                                        <%} else if ((String) request.getAttribute("check") == "correct") {%>
+                                                        <%String getCorrectOldPass = (String) request.getAttribute("getCorrectOldPass");%>
+                                                        <button type="submit" name="action" value="changePassword" class="btn btn-info " target="__blank">Save
+                                                            <input type="hidden" name="userID" value="<%=user.getId()%>" />
+                                                            <input type="hidden" name="page" value="changePassword" />
+                                                            <input type="hidden" name="oldPassWhenChange" value="<%=getCorrectOldPass%>" />
+                                                        </button>
+                                                        <%}%>
+                                                        &emsp;
                                                         <a class="btn btn-info " target="__blank" href="MainController?action=profilepage">Cancel</a>
                                                     </div>
                                                 </div>

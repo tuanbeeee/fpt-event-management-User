@@ -14,6 +14,7 @@ public class UserError {
     private String idError;
     private String nameError;
     private String passwordError;
+    private String oldPasswordError;
     private String passwordConfirmError;
     private String emailError;
     private String statusError;
@@ -41,13 +42,16 @@ public class UserError {
         this.pictureError = "";
         this.orgIDError = "";
         this.orgNameError = "";
+        this.oldPasswordError = "";
 
     }
 
-    public UserError(String idError, String nameError, String passwordError, String passwordConfirmError, String emailError, String statusError, String typeIDError, String typeNameError, String roleIDError, String genderError, String phoneNumberError, String pictureError, String orgIDError, String orgNameError) {
+    public UserError(String idError, String nameError, String passwordError, String oldPasswordError, String passwordConfirmError, String emailError, String statusError, String typeIDError, String typeNameError, String roleIDError, String genderError, String phoneNumberError, String pictureError, String orgIDError, String orgNameError) {
         this.idError = idError;
         this.nameError = nameError;
         this.passwordError = passwordError;
+        this.oldPasswordError = oldPasswordError;
+        this.passwordConfirmError = passwordConfirmError;
         this.emailError = emailError;
         this.statusError = statusError;
         this.typeIDError = typeIDError;
@@ -60,31 +64,7 @@ public class UserError {
         this.orgNameError = orgNameError;
     }
 
-    public String getOrgIDError() {
-        return orgIDError;
-    }
-
-    public void setOrgIDError(String orgIDError) {
-        this.orgIDError = orgIDError;
-    }
-
-    public String getOrgNameError() {
-        return orgNameError;
-    }
-
-    public void setOrgNameError(String orgNameError) {
-        this.orgNameError = orgNameError;
-    }
     
-    
-
-    public String getPasswordConfirmError() {
-        return passwordConfirmError;
-    }
-
-    public void setPasswordConfirmError(String passwordConfirmError) {
-        this.passwordConfirmError = passwordConfirmError;
-    }
 
     public String getIdError() {
         return idError;
@@ -108,6 +88,22 @@ public class UserError {
 
     public void setPasswordError(String passwordError) {
         this.passwordError = passwordError;
+    }
+
+    public String getOldPasswordError() {
+        return oldPasswordError;
+    }
+
+    public void setOldPasswordError(String oldPasswordError) {
+        this.oldPasswordError = oldPasswordError;
+    }
+
+    public String getPasswordConfirmError() {
+        return passwordConfirmError;
+    }
+
+    public void setPasswordConfirmError(String passwordConfirmError) {
+        this.passwordConfirmError = passwordConfirmError;
     }
 
     public String getEmailError() {
@@ -173,5 +169,23 @@ public class UserError {
     public void setPictureError(String pictureError) {
         this.pictureError = pictureError;
     }
+
+    public String getOrgIDError() {
+        return orgIDError;
+    }
+
+    public void setOrgIDError(String orgIDError) {
+        this.orgIDError = orgIDError;
+    }
+
+    public String getOrgNameError() {
+        return orgNameError;
+    }
+
+    public void setOrgNameError(String orgNameError) {
+        this.orgNameError = orgNameError;
+    }
+
+    
 
 }
