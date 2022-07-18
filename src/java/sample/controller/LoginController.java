@@ -34,7 +34,6 @@ public class LoginController extends HttpServlet {
      */
     private static final String ERROR = "UserDataController";
     private static final String US_PAGE = "UserHomePage";
-    private static final String ADM_PAGE = "AdminManagerPageController";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -61,16 +60,6 @@ public class LoginController extends HttpServlet {
                 dto = dao.checkUserExist(userName);
                 session.setAttribute("LOGIN_USER", dto);
                 url = US_PAGE;
-
-            } else if (validateUser.equals("ADM")) {
-                dto = dao.checkUserExist(userName);
-                session.setAttribute("LOGIN_USER", dto);
-                url = ADM_PAGE;
-
-            } else if (validateUser.equals("FPT") || validateUser.equals("CLB")) {
-                dto = dao.checkManagerExist(userName);
-                session.setAttribute("LOGIN_USER", dto);
-                url = ADM_PAGE;
 
             } else {
                 request.setAttribute("errMsg", validateUser);

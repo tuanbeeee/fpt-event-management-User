@@ -33,45 +33,13 @@ public class MainController extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     private static final String ERROR = "error.jsp";
-    private static final String SEARCH_ORG = "SearchOrg";
-    private static final String SEARCH_ORG_CONTROLLER = "SearchOrgController";
-    private static final String SEARCH_USER = "SearchUser";
-    private static final String SEARCH_USER_CONTROLLER = "SearchUserController";
-    private static final String SEARCH_MANAGER = "SearchManager";
-    private static final String SEARCH_MANAGER_CONTROLLER = "SearchManagerController";
-
-    private static final String CREATE_ORGANIZATION = "CreateOrg";
-    private static final String CREATE_ORGANIZATION_CONTROLLER = "CreateOrgController";
-    private static final String CREATE_USER = "CreateUser";
-    private static final String CREATE_USER_CONTROLLER = "RegisterController";
-    private static final String CREATE_MANAGER = "CreateManager";
-    private static final String CREATE_MANAGER_CONTROLLER = "CreateManagerController";
-
-    private static final String DELETE_USER = "DeleteUser";
-    private static final String DELETE_USER_CONTROLLER = "DeleteUserController";
-    private static final String DELETE_ORG = "DeleteOrg";
-    private static final String DELETE_ORG_CONTROLLER = "DeleteOrgController";
-    private static final String DELETE_MANAGER = "DeleteManager";
-    private static final String DELETE_MANAGER_CONTROLLER = "DeleteManagerController";
-
-    private static final String UPDATE_ORG = "UpdateOrg";
-    private static final String UPDATE_ORG_CONTROLLER = "UpdateOrgController";
-    private static final String UPDATE_USER = "UpdateUser";
-    private static final String UPDATE_USER_CONTROLLER = "UpdateUserController";
-    private static final String UPDATE_MANAGER = "UpdateManager";
-    private static final String UPDATE_MANAGER_CONTROLLER = "UpdateManagerController";
-
-    private static final String ADMIN_USER_PAGE = "AdminUserPage";
-    private static final String ADMIN_USER_PAGE_CONTROLLER = "AdminUserPageController";
-    private static final String ADMIN_MANAGER_PAGE = "AdminManagerPage";
-    private static final String ADMIN_MANAGER_PAGE_CONTROLLER = "AdminManagerPageController";
-    private static final String ADMIN_ORG_PAGE = "AdminOrgPage";
-    private static final String ADMIN_ORG_PAGE_CONTROLLER = "AdminOrgPageController";
 
     private static final String LOGIN_CONTROLLER = "LoginController";
     private static final String LOGIN = "Login";
+
     private static final String REGISTER_CONTROLLER = "RegisterController";
     private static final String REGISTER = "Register";
+
     private static final String LOGIN_PAGE_CONTROLLER = "UserDataController";
     private static final String LOGIN_PAGE = "loginpage";
 
@@ -105,29 +73,8 @@ public class MainController extends HttpServlet {
     private static final String EVENT_DETAIL = "EventDetail";
     private static final String DETAIL_CONTROLLER = "DetailController";
 
-    private static final String CREATE_EVENT = "CreateEvent";
-    private static final String CREATE_EVENT_CONTROLLER = "AddAnEventController";
-
-    private static final String UPDATE_EVENT = "UpdateEvent";
-    private static final String UPDATE_EVENT_CONTROLLER = "UpdateEventController";
-
-    private static final String EVT_TYPE_AND_LOCALTION = "EventTypeAndLocation";
-    private static final String EVT_TYPE_AND_LOCALTION_CONTROLLER = "EventTypeAndLocationController";
-
-    private static final String LIST_BLOG = "ListBlog";
-    private static final String LIST_BLOG_CONTROLLER = "BlogListController";
-
-    private static final String BLOG_DETAIL = "BlogDetail";
-    private static final String BLOG_DETAIL_CONTROLLER = "BlogDetailController";
-
-    private static final String SEARCH_BLOG = "SearchBlog";
-    private static final String SEARCH_BLOG_CONTROLLER = "SearchBlogController";
-
     private static final String USER_VIEW_CLUB_LIST = "clubList";
     private static final String USER_VIEW_CLUB_LIST_CONTROLLER = "UserViewClubList";
-
-    private static final String LOGIN_TO_PARTICIPATE = "loginToParticipate";
-    private static final String LOGIN_TO_PARTICIPATE_CONTROLLER = "User_Login.jsp";
 
     private static final String USER_PARTICIPANTS = "UserParticipants";
     private static final String USER_PARTICIPANTS_CONTROLLER = "UserParticipantsEvent";
@@ -169,43 +116,7 @@ public class MainController extends HttpServlet {
         System.out.println(request.getParameter("email"));
         try {
             String action = request.getParameter("action");
-            if (SEARCH_ORG.equals(action)) {
-                url = SEARCH_ORG_CONTROLLER;
-
-            } else if (SEARCH_USER.equals(action)) {
-                url = SEARCH_USER_CONTROLLER;
-
-            } else if (SEARCH_MANAGER.equals(action)) {
-                url = SEARCH_MANAGER_CONTROLLER;
-
-            } else if (CREATE_ORGANIZATION.equals(action)) {
-                url = CREATE_ORGANIZATION_CONTROLLER;
-
-            } else if (DELETE_USER.equals(action)) {
-                url = DELETE_USER_CONTROLLER;
-
-            } else if (DELETE_ORG.equals(action)) {
-                url = DELETE_ORG_CONTROLLER;
-
-            } else if (DELETE_MANAGER.equals(action)) {
-                url = DELETE_MANAGER_CONTROLLER;
-
-            } else if (ADMIN_MANAGER_PAGE.equals(action)) {
-                url = ADMIN_MANAGER_PAGE_CONTROLLER;
-
-            } else if (ADMIN_ORG_PAGE.equals(action)) {
-                url = ADMIN_ORG_PAGE_CONTROLLER;
-
-            } else if (ADMIN_USER_PAGE.equals(action)) {
-                url = ADMIN_USER_PAGE_CONTROLLER;
-
-            } else if (UPDATE_ORG.equals(action)) {
-                url = UPDATE_ORG_CONTROLLER;
-
-            } else if (UPDATE_USER.equals(action)) {
-                url = UPDATE_USER_CONTROLLER;
-
-            } else if (LOGIN.equals(action)) {
+            if (LOGIN.equals(action)) {
                 url = LOGIN_CONTROLLER;
 
             } else if (REGISTER.equals(action)) {
@@ -229,38 +140,14 @@ public class MainController extends HttpServlet {
             } else if (USER_UPDATE_PROFILE.equals(action)) {
                 url = USER_UPDATE_PROFILE_CONTROLLER;
 
-            } else if (CREATE_USER.equals(action)) {
-                url = CREATE_USER_CONTROLLER;
-
-            } else if (CREATE_MANAGER.equals(action)) {
-                url = CREATE_MANAGER_CONTROLLER;
-
-            } else if (UPDATE_MANAGER.equals(action)) {
-                url = UPDATE_MANAGER_CONTROLLER;
-
             } else if (SEARCH_EVENT.equals(action)) {
                 url = SEARCH_CONTROLLER;
 
             } else if (EVENT_DETAIL.equals(action)) {
                 url = DETAIL_CONTROLLER;
 
-            } else if (CREATE_EVENT.equals(action)) {
-                url = CREATE_EVENT_CONTROLLER;
-
-            } else if (EVT_TYPE_AND_LOCALTION.equals(action)) {
-                url = EVT_TYPE_AND_LOCALTION_CONTROLLER;
-
             } else if (LIST_EVENT.equals(action)) {
                 url = LIST_EVENT_CONTROLLER;
-
-            } else if (LIST_BLOG.equals(action)) {
-                url = LIST_BLOG_CONTROLLER;
-
-            } else if (BLOG_DETAIL.equals(action)) {
-                url = BLOG_DETAIL_CONTROLLER;
-
-            } else if (SEARCH_BLOG.equals(action)) {
-                url = SEARCH_BLOG_CONTROLLER;
 
             } else if (USER_VIEW_EVENT_LIST.equals(action)) {
                 url = USER_VIEW_EVENT_LIST_CONTROLLER;
@@ -270,9 +157,6 @@ public class MainController extends HttpServlet {
 
             } else if (USER_VIEW_CLUB_LIST.equals(action)) {
                 url = USER_VIEW_CLUB_LIST_CONTROLLER;
-
-            } else if (LOGIN_TO_PARTICIPATE.equals(action)) {
-                url = LOGIN_TO_PARTICIPATE_CONTROLLER;
 
             } else if (USER_PARTICIPANTS.equals(action)) {
                 url = USER_PARTICIPANTS_CONTROLLER;

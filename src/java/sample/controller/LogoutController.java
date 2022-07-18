@@ -45,12 +45,7 @@ public class LogoutController extends HttpServlet {
             HttpSession session = request.getSession(false); //Fetch session object          
             if (session != null) //If session is not null
             {
-                if (AD.equals(page)) {
-                    session.invalidate(); //removes all session attributes bound to the session
-                    request.setAttribute("errMessage", "You have logged out successfully !");
-                    url = AD_PAGE;
-
-                } else if (US.equals(page)) {
+                if (US.equals(page)) {
                     session.invalidate(); //removes all session attributes bound to the session
                     request.setAttribute("errMessage", "You have logged out successfully !");
                     url = US_PAGE;

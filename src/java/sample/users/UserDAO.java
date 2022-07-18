@@ -49,32 +49,6 @@ public class UserDAO {
 
     private static final String UPDATE_USER_PROFILE = "UPDATE tblUsers SET fullName = ?, email=?, typeID =?, gender=?, phone=?, avatarUrl=? WHERE userID=?";
 
-    private static final String GET_ALL_INFO_MANAGER = "SELECT userID, fullName, password, email, status, roleID, gender, phone, avatarURL, orgID, tblUserTypes.typeID, tblUserTypes.typeName\n"
-            + "FROM tblUsers, tblManagers, tblUserTypes\n"
-            + "WHERE tblUsers.userID = tblManagers.managerID AND tblUsers.userID = ? AND tblUsers.typeID = tblUserTypes.typeID";
-
-    private static final String LOGIN = "SELECT FROM WHERE";
-
-    private static final String GET_ALL_USERS = "SELECT userID, fullName, password, email, status, roleID, gender, phone, avatarUrl, tblUserTypes.typeID, tblUserTypes.typeName FROM tblUsers, tblUserTypes WHERE tblUsers.typeID = tblUserTypes.typeID AND roleID = 'US'";
-
-    private static final String GET_ALL_MANAGERS = "SELECT userID, fullName, password, email, status, roleID, gender, phone, avatarURL, orgID, tblUserTypes.typeID, tblUserTypes.typeName\n"
-            + "FROM tblUsers, tblManagers, tblUserTypes\n"
-            + "WHERE tblUsers.userID = tblManagers.managerID AND tblUsers.typeID = tblUserTypes.typeID";
-    private static final String SEARCH_USER = "SELECT  userID, fullName, password, email, status, typeID, roleID, gender, phone, avatarUrl \n"
-            + "             FROM tblUsers \n"
-            + "             WHERE dbo.ufn_removeMark(fullName) like ? or fullName like ? or userID like ?";
-
-    private static final String SEARCH_MANAGER = "SELECT userID, fullName, password, email, status, typeID, roleID, gender, phone, avatarURL, orgID\n"
-            + "from tblUsers, tblManagers\n"
-            + "where tblUsers.userID = tblManagers.managerID and (dbo.ufn_removeMark(fullName) like ? or fullName like ? or userID like ?)";
-
-    private static final String DELETE_USER = "UPDATE tblUsers SET status = '0' WHERE userID = ?";
-
-    private static final String UPDATE_USER_PROFILE_BY_ADMIN = "UPDATE tblUsers SET fullName = ?, email=?, typeID =?, gender=?, phone=?, avatarUrl=?, password = ?, status = ?, roleID = ? "
-            + "WHERE userID = ?";
-
-    private static final String SIGN_UP_BY_MANAGER = "INSERT INTO tblManagers (managerID, orgID) VALUES (?, ?)";
-
     private static final String CHECK_UPDATE_EMAIL_EXIST = "SELECT userID, fullName, password, email, status, typeID, roleID, gender, phone, avatarUrl FROM tblUsers WHERE email = ? and userID != ?";
 
     private static final String VIEW_EVENT_LIST_BY_USER = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, \n"
@@ -110,7 +84,7 @@ public class UserDAO {
             + "WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.orgID = tblOrgPage.orgID AND tblEventPost.status = ? AND tblStatusType.statusTypeID = ? ORDER BY eventID  DESC";
 
     private static final String GET_PARTICIPANTS = "SELECT userID, eventID, status FROM tblParticipants WHERE userID = ? AND eventID = ? AND status = '1'";
-    
+
     private static final String GET_UNPARTICIPANTS = "SELECT userID, eventID, status FROM tblParticipants WHERE userID = ? AND eventID = ? AND status = '0'";
 
     private static final String PARTICIPANTS = "INSERT INTO tblParticipants (userID, eventID, status) VALUES (?, ?, '1')";
@@ -184,14 +158,14 @@ public class UserDAO {
     private static final String CHANGE_PASSWORD = "UPDATE tblUsers SET password = ? WHERE userID = ?";
 
     private static final String GET_PASS = "SELECT password FROM tblUsers WHERE userID = ?";
-    
+
     private static final String GET_PARTICIPANTS_LIST = "SELECT userID, eventID, status FROM tblParticipants WHERE eventID = ? AND status = 'true'";
-    
+
     private static final String PARTICIPANT_AGAIN_BY_USER = "UPDATE tblParticipants SET status = '1' WHERE userID = ? AND eventID = ?";
-    
-     private static final String UNPARTICIPANT_BY_USER = "UPDATE tblParticipants SET status = '0' WHERE userID = ? AND eventID = ?";
-     
-     public void participantAgainByUser(String userID, String event) throws Exception {
+
+    private static final String UNPARTICIPANT_BY_USER = "UPDATE tblParticipants SET status = '0' WHERE userID = ? AND eventID = ?";
+
+    public void participantAgainByUser(String userID, String event) throws Exception {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
@@ -217,8 +191,8 @@ public class UserDAO {
             }
         }
     }
-     
-     public void unparticipantByUser(String userID, String event) throws Exception {
+
+    public void unparticipantByUser(String userID, String event) throws Exception {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
@@ -250,7 +224,6 @@ public class UserDAO {
         PreparedStatement ptm = null;
         ResultSet rs = null;
         String passwordDB = null;
-
 
         try {
             String sql = GET_PASS;
@@ -498,49 +471,6 @@ public class UserDAO {
 
     }
 
-    public ManagerDTO checkManagerExist(String managerID) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        ManagerDTO getInfoManager = null;
-        try {
-            String sql = GET_ALL_INFO_MANAGER;
-            conn = DBUtils.getConnection();
-            ptm = conn.prepareStatement(sql);
-            ptm.setString(1, managerID);
-            rs = ptm.executeQuery();
-
-            if (rs.next()) {
-                String password = rs.getString("password");
-                String fullName = rs.getString("fullName");
-                String email = rs.getString("email");
-                boolean status = rs.getBoolean("status");
-                String typeID = rs.getString("typeID");
-                String typeName = rs.getString("typeName");
-                String roleID = rs.getString("roleID");
-                String gender = rs.getString("gender");
-                String phone = rs.getString("phone");
-                String avatarUrl = rs.getString("avatarUrl");
-                String orgID = rs.getString("orgID");
-
-                getInfoManager = new ManagerDTO(orgID, managerID, fullName, password, email, status, typeID, roleID, gender, phone, avatarUrl);
-            }
-        } catch (Exception e) {
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return getInfoManager;
-
-    }
-
     public UserDTO checkEmailExist(String email) throws SQLException {
         Connection conn = null;
         PreparedStatement ptm = null;
@@ -661,47 +591,6 @@ public class UserDAO {
             }
         }
         return false;
-    }
-
-    public boolean updateUserProfileByAdmin(UserDTO user) throws SQLException, NamingException {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        boolean check = false;
-        String sql = UPDATE_USER_PROFILE_BY_ADMIN;
-
-        try {
-            conn = DBUtils.getConnection();
-            if (conn != null) {
-                ptm = conn.prepareStatement(sql);
-
-                ptm.setString(1, user.getName());
-                ptm.setString(2, user.getEmail());
-                ptm.setString(3, user.getTypeID());
-                ptm.setString(4, user.getGender());
-                ptm.setString(5, user.getPhoneNumber());
-                ptm.setString(6, user.getPicture());
-                ptm.setString(7, user.getPassword());
-                ptm.setBoolean(8, user.isStatus());
-                ptm.setString(9, user.getRoleID());
-                ptm.setString(10, user.getId());
-
-                if (ptm.executeUpdate() > 0) {
-                    check = true;
-                }
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return check;
     }
 
     public String authenticateUser(String userID, String password) throws ClassNotFoundException, SQLException {
@@ -935,37 +824,6 @@ public class UserDAO {
         return check;
     }
 
-    public boolean signUpByManager(ManagerDTO user) throws Exception {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        boolean check = false;
-        String sql = SIGN_UP_BY_MANAGER;
-        try {
-            conn = DBUtils.getConnection();
-            ptm = conn.prepareStatement(sql);
-            ptm.setString(1, user.getId());
-            ptm.setString(2, user.getOrgID());
-
-            if (ptm.executeUpdate() > 0) {
-                check = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return check;
-    }
-
     public boolean checkInputPhoneNumber(String phoneNumber) {
         Pattern p = Pattern.compile("^[0-9]{10}$");
         if (p.matcher(phoneNumber).find()) {
@@ -1000,197 +858,6 @@ public class UserDAO {
         } else {
             return false;
         }
-    }
-
-    public List<UserDTO> getAllUsers() throws SQLException {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        List<UserDTO> list = new ArrayList<>();
-        try {
-            conn = DBUtils.getConnection();
-            ptm = conn.prepareStatement(GET_ALL_USERS);
-            rs = ptm.executeQuery();
-            while (rs.next()) {
-                String userID = rs.getString("userID");
-                String fullName = rs.getString("fullName");
-                String password = rs.getString("password");
-                String email = rs.getString("email");
-                String typeID = rs.getString("typeID");
-                String typeName = rs.getString("typeName");
-                String roleID = rs.getString("roleID");
-                String gender = rs.getString("gender");
-                String phoneNumber = rs.getString("phone");
-                String avatarUrl = rs.getString("avatarUrl");
-                boolean status = rs.getBoolean("status");
-                list.add(new UserDTO(userID, fullName, password, email, status, typeID, typeName, roleID, gender, phoneNumber, avatarUrl));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return list;
-    }
-
-    public List<ManagerDTO> getAllManagers() throws SQLException {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        List<ManagerDTO> list = new ArrayList<>();
-        try {
-            conn = DBUtils.getConnection();
-            ptm = conn.prepareStatement(GET_ALL_MANAGERS);
-            rs = ptm.executeQuery();
-            while (rs.next()) {
-                String userID = rs.getString("userID");
-                String fullName = rs.getString("fullName");
-                String password = rs.getString("password");
-                String email = rs.getString("email");
-                String typeID = rs.getString("typeID");
-                String typeName = rs.getString("typeName");
-                String roleID = rs.getString("roleID");
-                String gender = rs.getString("gender");
-                String phoneNumber = rs.getString("phone");
-                String avatarUrl = rs.getString("avatarUrl");
-                String orgID = rs.getString("orgID");
-                boolean status = rs.getBoolean("status");
-                list.add(new ManagerDTO(orgID, userID, fullName, password, email, status, typeID, typeName, roleID, gender, phoneNumber, avatarUrl));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return list;
-    }
-
-    public List<UserDTO> searchUser(String search) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        List<UserDTO> list = new ArrayList<>();
-        try {
-            conn = DBUtils.getConnection();
-            ptm = conn.prepareStatement(SEARCH_USER);
-            ptm.setString(1, "%" + search + "%");
-            ptm.setString(2, "%" + search + "%");
-            ptm.setString(3, "%" + search + "%");
-
-            rs = ptm.executeQuery();
-            while (rs.next()) {
-                String userID = rs.getString("userID");
-                String fullName = rs.getString("fullName");
-                String password = rs.getString("password");
-                String email = rs.getString("email");
-                String typeID = rs.getString("typeID");
-                String roleID = rs.getString("roleID");
-                String gender = rs.getString("gender");
-                String phoneNumber = rs.getString("phone");
-                String avatarUrl = rs.getString("avatarUrl");
-                boolean status = rs.getBoolean("status");
-                list.add(new UserDTO(userID, fullName, password, email, status, typeID, roleID, gender, phoneNumber, avatarUrl));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return list;
-    }
-
-    public List<ManagerDTO> searchManager(String search) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        List<ManagerDTO> list = new ArrayList<>();
-        try {
-            conn = DBUtils.getConnection();
-            ptm = conn.prepareStatement(SEARCH_MANAGER);
-            ptm.setString(1, "%" + search + "%");
-            ptm.setString(2, "%" + search + "%");
-            ptm.setString(3, "%" + search + "%");
-
-            rs = ptm.executeQuery();
-            while (rs.next()) {
-                String userID = rs.getString("userID");
-                String fullName = rs.getString("fullName");
-                String password = rs.getString("password");
-                String email = rs.getString("email");
-                String typeID = rs.getString("typeID");
-                String roleID = rs.getString("roleID");
-                String gender = rs.getString("gender");
-                String phoneNumber = rs.getString("phone");
-                String avatarUrl = rs.getString("avatarUrl");
-                String orgID = rs.getString("orgID");
-                boolean status = rs.getBoolean("status");
-                list.add(new ManagerDTO(orgID, userID, fullName, password, email, status, typeID, roleID, gender, phoneNumber, avatarUrl));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return list;
-    }
-
-    public boolean deleteUser(String userID) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        boolean check = false;
-        try {
-            conn = DBUtils.getConnection();
-            ptm = conn.prepareStatement(DELETE_USER);
-            ptm.setString(1, userID);
-            if (ptm.executeUpdate() > 0) {
-                check = true;
-            } else {
-                check = false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return check;
     }
 
     public ArrayList<EventPost> getAllEventList() throws SQLException {
@@ -1801,7 +1468,7 @@ public class UserDAO {
         return participants;
 
     }
-    
+
     public ParticipantsDTO getUnparticipants(String userID, String eventID) throws SQLException {
         Connection conn = null;
         PreparedStatement ptm = null;
@@ -1834,8 +1501,8 @@ public class UserDAO {
         return participants;
 
     }
-    
-     public ArrayList<ParticipantsDTO> getParticipantsList(String eventID) throws SQLException {
+
+    public ArrayList<ParticipantsDTO> getParticipantsList(String eventID) throws SQLException {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
@@ -1849,7 +1516,7 @@ public class UserDAO {
             rs = ptm.executeQuery();
             while (rs.next()) {
                 String userID = rs.getString("userID");
-                
+
                 participants = new ParticipantsDTO(userID, eventID, true);
                 list.add(participants);
             }
