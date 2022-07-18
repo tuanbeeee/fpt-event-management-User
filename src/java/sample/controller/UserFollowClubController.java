@@ -40,7 +40,7 @@ public class UserFollowClubController extends HttpServlet {
 
             userFollow = dao.getUserFollowing(userID, orgID);
             if (request.getParameter("FOLLOW") != null) {
-                if (userFollow == null) {
+                if (userFollow == null && dao.getUserUnfollow(userID, orgID) == null) {
                     dao.followByUser(userID, orgID);
                     url = SUCCESS;
                 } else if (dao.getUserUnfollow(userID, orgID) != null) {

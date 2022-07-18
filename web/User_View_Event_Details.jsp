@@ -583,18 +583,19 @@
                                         <%if (participationLimit < getEventInfo.getParticipationLimit()) {%>
                                         <button type="button" style="width: 415px" class="btn btn-primary primary1" data-toggle="modal"  
                                                 data-target="#exampleModalCenter">
+                                            <input type="hidden" name="PARTICIPANTS" value="UserParticipants">
                                             Register
                                         </button>
                                         <%} else if (participationLimit == getEventInfo.getParticipationLimit()) {%>
-                                        <button type="button" style="width: 415px" class="btn btn-info primary1" data-toggle="modal" disabled=""
+                                        <button type="button" style="width: 415px" class="btn btn-info primary1" data-toggle="modal"disabled=""
                                                 data-target="#exampleModalCenter">
                                             Register
                                         </button>
                                         <%}%>
                                         <%} else {%>
-                                        <button type="button" style="width: 415px" class="btn btn-info primary1" data-toggle="modal" disabled=""
-                                                data-target="#exampleModalCenter">
-                                            Register
+                                        <button type="button" style="width: 415px" class="btn btn-info primary1" data-toggle="modal"
+                                                data-target="#exampleModalCenterUnparticipate">                                         
+                                            Registered
                                         </button>
                                         <%}%>
                                         <%if (participationLimit == getEventInfo.getParticipationLimit()) {%>
@@ -618,6 +619,37 @@
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="submit" class="btn btn-primary" name="action" value="UserParticipants">
+                                                                <input type="hidden" name="PARTICIPANTS" value="UserParticipants">
+                                                                <input type="hidden" name="username" value="<%=getUserID.getId()%>">
+                                                                <input type="hidden" name="eventID" value="<%=getEventInfo.getId()%>">
+                                                                Yes</button>
+                                                            <button type="button" class="btn btn-secondary"
+                                                                    style="background-color: rgb(207, 6, 6);"
+                                                                    data-dismiss="modal">No</button>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        <form action="MainController" method="POST">
+                                            <div class="modal fade" id="exampleModalCenterUnparticipate" tabindex="-1" role="dialog"
+                                                 aria-labelledby="exampleModalCenterUnparticipateTitle" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" style="color: rgb(255, 255, 255);"
+                                                                id="exampleModalLongTitle">Confirm</h5>
+
+
+                                                        </div>
+                                                        <div class="modal-body" style="color: black;">
+                                                            DO YOU WANT CANCEL THE EVENT ?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-primary" name="action" value="UserParticipants">
+                                                                <input type="hidden" name="UNPARTICIPANTS" value="UserUnparticipants">
                                                                 <input type="hidden" name="username" value="<%=getUserID.getId()%>">
                                                                 <input type="hidden" name="eventID" value="<%=getEventInfo.getId()%>">
                                                                 Yes</button>

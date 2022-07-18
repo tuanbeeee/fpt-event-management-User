@@ -110,6 +110,8 @@ public class UserDAO {
             + "WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.orgID = tblOrgPage.orgID AND tblEventPost.status = ? AND tblStatusType.statusTypeID = ? ORDER BY eventID  DESC";
 
     private static final String GET_PARTICIPANTS = "SELECT userID, eventID, status FROM tblParticipants WHERE userID = ? AND eventID = ? AND status = '1'";
+    
+    private static final String GET_UNPARTICIPANTS = "SELECT userID, eventID, status FROM tblParticipants WHERE userID = ? AND eventID = ? AND status = '0'";
 
     private static final String PARTICIPANTS = "INSERT INTO tblParticipants (userID, eventID, status) VALUES (?, ?, '1')";
 
@@ -184,6 +186,64 @@ public class UserDAO {
     private static final String GET_PASS = "SELECT password FROM tblUsers WHERE userID = ?";
     
     private static final String GET_PARTICIPANTS_LIST = "SELECT userID, eventID, status FROM tblParticipants WHERE eventID = ? AND status = 'true'";
+    
+    private static final String PARTICIPANT_AGAIN_BY_USER = "UPDATE tblParticipants SET status = '1' WHERE userID = ? AND eventID = ?";
+    
+     private static final String UNPARTICIPANT_BY_USER = "UPDATE tblParticipants SET status = '0' WHERE userID = ? AND eventID = ?";
+     
+     public void participantAgainByUser(String userID, String event) throws Exception {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = PARTICIPANT_AGAIN_BY_USER;
+        try {
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, userID);
+            ptm.setString(2, event);
+            ptm.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+     
+     public void unparticipantByUser(String userID, String event) throws Exception {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = UNPARTICIPANT_BY_USER;
+        try {
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, userID);
+            ptm.setString(2, event);
+            ptm.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
 
     public String getPass(String userID) throws ClassNotFoundException, SQLException {
         Connection conn = null;
@@ -1724,6 +1784,39 @@ public class UserDAO {
             if (rs.next()) {
 
                 participants = new ParticipantsDTO(userID, eventID, true);
+            }
+        } catch (Exception e) {
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+
+        }
+        return participants;
+
+    }
+    
+    public ParticipantsDTO getUnparticipants(String userID, String eventID) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        ParticipantsDTO participants = null;
+        try {
+            String sql = GET_UNPARTICIPANTS;
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, userID);
+            ptm.setString(2, eventID);
+            rs = ptm.executeQuery();
+            if (rs.next()) {
+
+                participants = new ParticipantsDTO(userID, eventID, false);
             }
         } catch (Exception e) {
         } finally {

@@ -33,15 +33,30 @@ public class UserParticipantsEvent extends HttpServlet {
         String url = ERROR;
         try {
             UserDAO dao = new UserDAO();
-
+            ParticipantsDTO dto = new ParticipantsDTO();
             String userID = request.getParameter("username");
             String eventID = request.getParameter("eventID");
-
-            dao.participantsUser(userID, eventID);
-
+            
+            dto = dao.getParticipants(userID, eventID);
+            System.out.println(dto);
+            if (request.getParameter("PARTICIPANTS")!= null){
+                if (dto == null && dao.getUnparticipants(userID, eventID) == null){
+                    dao.participantsUser(userID, eventID);
+                    url = SUCCESS;
+                } else if (dao.getUnparticipants(userID, eventID) != null){
+                    dao.participantAgainByUser(userID, eventID);
+                    url = SUCCESS;
+                }
+            } else if (request.getParameter("UNPARTICIPANTS") != null){
+                if (dto != null){
+                    dao.unparticipantByUser(userID, eventID);
+                    url = SUCCESS;
+                }
+            }
+            
             request.setAttribute("EVENT_DETAIL_ID", eventID);
 
-            url = SUCCESS;
+            
 
         } catch (Exception e) {
             e.printStackTrace();
