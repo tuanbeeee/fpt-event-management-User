@@ -83,7 +83,7 @@ public class UserDAO {
             + "            WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
             + "			tblEventPost.statusTypeID = tblStatusType.statusTypeID AND tblEventPost.status = ? AND tblStatusType.statusTypeID =?";
 
-    private static final String VIEW_EVENT_DETAIL_BY_USER = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
+    private static final String VIEW_EVENT_DETAIL_BY_USER = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes, participationLimit\n"
             + "                    FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
             + "                    WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
             + "                    tblEventPost.statusTypeID = tblStatusType.statusTypeID AND eventID = ?";
@@ -182,6 +182,8 @@ public class UserDAO {
     private static final String CHANGE_PASSWORD = "UPDATE tblUsers SET password = ? WHERE userID = ?";
 
     private static final String GET_PASS = "SELECT password FROM tblUsers WHERE userID = ?";
+    
+    private static final String GET_PARTICIPANTS_LIST = "SELECT userID, eventID, status FROM tblParticipants WHERE eventID = ? AND status = 'true'";
 
     public String getPass(String userID) throws ClassNotFoundException, SQLException {
         Connection conn = null;
@@ -1404,10 +1406,11 @@ public class UserDAO {
                     String eventTypeName = rs.getString("eventTypeName");
                     String locationName = rs.getString("locationName");
                     String approvalDes = rs.getString("approvalDes");
+                    int participationLimit = rs.getInt("participationLimit");
                     boolean status = true;
                     String statusTypeID = "AP";
 
-                    event = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, eventID, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
+                    event = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, eventID, orgID, title, content, createDate, imgUrl, numberOfView, summary, status, participationLimit);
                 }
             }
         } catch (Exception e) {
@@ -1736,6 +1739,41 @@ public class UserDAO {
 
         }
         return participants;
+
+    }
+    
+     public ArrayList<ParticipantsDTO> getParticipantsList(String eventID) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        ParticipantsDTO participants = null;
+        ArrayList<ParticipantsDTO> list = new ArrayList<>();
+        try {
+            String sql = GET_PARTICIPANTS_LIST;
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(sql);
+            ptm.setString(1, eventID);
+            rs = ptm.executeQuery();
+            while (rs.next()) {
+                String userID = rs.getString("userID");
+                
+                participants = new ParticipantsDTO(userID, eventID, true);
+                list.add(participants);
+            }
+        } catch (Exception e) {
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+
+        }
+        return list;
 
     }
 
@@ -2323,9 +2361,9 @@ public class UserDAO {
 
     public static void main(String[] args) throws SQLException, ParseException, Exception {
 
-        ArrayList<EventPost> e = new ArrayList<EventPost>();
+        ArrayList<ParticipantsDTO> e = new ArrayList<ParticipantsDTO>();
         UserDAO dao = new UserDAO();
-        e = dao.getEventByTpye("2");
+        e = dao.getParticipantsList("EVT1");
         System.out.println(e);
 
     }

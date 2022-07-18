@@ -7,6 +7,7 @@ package sample.controller;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author light
  */
 @WebServlet(name = "MainController", urlPatterns = {"/MainController"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 50, // 50MB
+        maxRequestSize = 1024 * 1024 * 50) // 50MB
 public class MainController extends HttpServlet {
 
     /**
@@ -162,6 +166,7 @@ public class MainController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         String url = ERROR;
+        System.out.println(request.getParameter("email"));
         try {
             String action = request.getParameter("action");
             if (SEARCH_ORG.equals(action)) {
@@ -298,7 +303,7 @@ public class MainController extends HttpServlet {
 
             } else if (DELETE_COMMENT_BY_USER.equals(action)) {
                 url = DELETE_COMMENT_BY_USER_CONTROLLER;
-            
+
             } else if (CHANGE_PASS_BY_USER.equals(action)) {
                 url = CHANGE_PASS_BY_USER_CONTROLLER;
             }

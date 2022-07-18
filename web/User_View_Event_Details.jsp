@@ -577,18 +577,30 @@
 
                                         <%UserDTO getUserID = (UserDTO) request.getSession().getAttribute("LOGIN_USER");
                                             ParticipantsDTO dto = new ParticipantsDTO();
-                                            dto = (ParticipantsDTO) request.getAttribute("CHECK_PARTICIPANTS"); %>
+                                            dto = (ParticipantsDTO) request.getAttribute("CHECK_PARTICIPANTS");
+                                            int participationLimit = (int) request.getAttribute("PARTICIPATIONLIMIT"); %>
                                         <%if (request.getAttribute("CHECK_PARTICIPANTS") == null) {%>
+                                        <%if (participationLimit < getEventInfo.getParticipationLimit()) {%>
                                         <button type="button" style="width: 415px" class="btn btn-primary primary1" data-toggle="modal"  
                                                 data-target="#exampleModalCenter">
                                             Register
                                         </button>
+                                        <%} else if (participationLimit == getEventInfo.getParticipationLimit()) {%>
+                                        <button type="button" style="width: 415px" class="btn btn-info primary1" data-toggle="modal" disabled=""
+                                                data-target="#exampleModalCenter">
+                                            Register
+                                        </button>
+                                        <%}%>
                                         <%} else {%>
                                         <button type="button" style="width: 415px" class="btn btn-info primary1" data-toggle="modal" disabled=""
                                                 data-target="#exampleModalCenter">
                                             Register
                                         </button>
                                         <%}%>
+                                        <%if (participationLimit == getEventInfo.getParticipationLimit()) {%>
+                                        <span style="color:red">
+                                            The event has exceeded the limit of participants</span>
+                                            <%}%>
                                         <!-- Modal -->
                                         <form action="MainController" method="POST">
                                             <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"

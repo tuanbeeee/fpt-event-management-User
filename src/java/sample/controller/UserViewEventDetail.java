@@ -74,6 +74,11 @@ public class UserViewEventDetail extends HttpServlet {
 
             EventPost getEventPostDetail = dao.getAnEvent(eventID);
             request.setAttribute("USER_VIEW_EVENT_DETAIL", getEventPostDetail);
+            
+            ArrayList<ParticipantsDTO> list = new ArrayList<>();
+            list = dao.getParticipantsList(eventID);
+            int participationLimit = 99 + list.size();
+            request.setAttribute("PARTICIPATIONLIMIT", participationLimit);
 
             ArrayList<CommentSectionDTO> comment = new ArrayList<CommentSectionDTO>();
             comment = dao.getComment(eventID);

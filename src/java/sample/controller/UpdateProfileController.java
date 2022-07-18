@@ -7,12 +7,16 @@ package sample.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import sample.users.UserDAO;
 import sample.users.UserDTO;
 import sample.users.UserError;
@@ -22,6 +26,10 @@ import sample.users.UserError;
  * @author Tuan Be
  */
 @WebServlet(name = "UpdateProfileController", urlPatterns = {"/UpdateProfileController"})
+
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 50, // 50MB
+        maxRequestSize = 1024 * 1024 * 50) // 50MB
 public class UpdateProfileController extends HttpServlet {
 
     /**
@@ -75,7 +83,20 @@ public class UpdateProfileController extends HttpServlet {
                 error.setPhoneNumberError("Wrong input phone number!");
                 check = false;
             }
-            String avatarUrl = request.getParameter("avatar");
+            dto = dao.checkUserExist(userID);
+            String path = dto.getPicture();
+            Part filePart = request.getPart("image");
+            if (filePart != null) {
+                String realPath = request.getServletContext().getRealPath("/Image");
+                String filename = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                if (!Files.exists(Paths.get(realPath))) {
+                    Files.createDirectory(Paths.get(realPath));
+                }
+                if (!"".equals(filename)) {
+                    filePart.write(realPath + "/" + filename);
+                    path = "Image//" + filename;
+                } 
+            }
 
             if (check == false) {
                 String page = request.getParameter("page");
@@ -84,7 +105,7 @@ public class UpdateProfileController extends HttpServlet {
                 url = ERROR;
             } else {
                 UserDAO updateProflie = new UserDAO();
-                UserDTO user = new UserDTO(userID, userName, password, email, true, type, "US", gender, phone, avatarUrl);
+                UserDTO user = new UserDTO(userID, userName, password, email, true, type, "US", gender, phone, path);
                 updateProflie.updateUserProfile(user);
                 UserDTO getinfodto = new UserDTO();
                 UserDAO getinfodao = new UserDAO();

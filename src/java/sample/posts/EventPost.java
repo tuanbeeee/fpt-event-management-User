@@ -18,6 +18,7 @@ public class EventPost extends Post {
     private String imgURLCLB;
     private String clbName;
     private String clbDes;
+    private int participationLimit;
 
     public EventPost() {
     }
@@ -69,6 +70,19 @@ public class EventPost extends Post {
         this.statusTypeName = statusTypeName;
         this.approvalDes = approvalDes;
     }
+    public EventPost(String takePlaceDate, String location, String eventType, String speaker, String eventTypeName, String locationName, String statusTypeID, String statusTypeName, String approvalDes, String id, String orgID, String title, String content, String createDate, String imgUrl, int numberOfView, String summary, boolean status, int participationLimit) {
+        super(id, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
+        this.takePlaceDate = takePlaceDate;
+        this.location = location;
+        this.eventType = eventType;
+        this.speaker = speaker;
+        this.eventTypeName = eventTypeName;
+        this.locationName = locationName;
+        this.statusTypeID = statusTypeID;
+        this.statusTypeName = statusTypeName;
+        this.approvalDes = approvalDes;
+        this.participationLimit = participationLimit;
+    }
 
     public EventPost(String id, int numberOfView) {
         super(id, numberOfView);
@@ -88,6 +102,14 @@ public class EventPost extends Post {
         this.imgURLCLB = imgURLCLB;
         this.clbName = clbName;
         this.clbDes = clbDes;
+    }
+
+    public int getParticipationLimit() {
+        return participationLimit;
+    }
+
+    public void setParticipationLimit(int participationLimit) {
+        this.participationLimit = participationLimit;
     }
 
     public String getTakePlaceDate() {
@@ -188,10 +210,7 @@ public class EventPost extends Post {
 
     @Override
     public String toString() {
-        return "EventPost{" + "takePlaceDate=" + takePlaceDate + ", location=" + location + ", eventType=" + eventType + ", speaker=" + speaker + ", eventTypeName=" + eventTypeName + ", locationName=" + locationName + ", statusTypeID=" + statusTypeID + ", statusTypeName=" + statusTypeName + ", approvalDes=" + approvalDes + ", imgURLCLB=" + imgURLCLB + ", clbName=" + clbName + ", clbDes=" + clbDes + '}';
-    }
-
-    
-    
+        return "EventPost{" + "takePlaceDate=" + takePlaceDate + ", location=" + location + ", eventType=" + eventType + ", speaker=" + speaker + ", eventTypeName=" + eventTypeName + ", locationName=" + locationName + ", statusTypeID=" + statusTypeID + ", statusTypeName=" + statusTypeName + ", approvalDes=" + approvalDes + ", imgURLCLB=" + imgURLCLB + ", clbName=" + clbName + ", clbDes=" + clbDes + ", participationLimit=" + participationLimit + '}';
+    }  
 
 }
