@@ -7,7 +7,10 @@ package sample.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -28,19 +31,36 @@ public class UserViewClubList extends HttpServlet {
     String ERROR = "error.jsp";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
-        
         String url = ERROR;
-        
+
         try {
 
             ArrayList<OrganizationDTO> list = new ArrayList<>();
             UserDAO getAllClub = new UserDAO();
-            list = getAllClub.getAllOrganization();
-            request.setAttribute("GET_ALL_CLUB", list);
-            
-            
+            String search = request.getParameter("search");
+
+            if (search == null) {
+                list = getAllClub.getAllOrganization();
+                request.setAttribute("GET_ALL_CLUB", list);
+            } else if (search != null) {
+                ArrayList<OrganizationDTO> listOrgWithoutMark = new ArrayList<>();
+                ArrayList<OrganizationDTO> listOrg = new ArrayList<>();
+                listOrgWithoutMark = getAllClub.searchOrganizationWithoutMark(search);
+                listOrg = getAllClub.searchOrganization(search);
+                if (listOrg.size() == 0 && listOrgWithoutMark.size() != 0) {
+                    request.setAttribute("GET_ALL_CLUB", listOrgWithoutMark);
+                } else if (listOrg.size() != 0 && listOrgWithoutMark.size() == 0) {
+                    request.setAttribute("GET_ALL_CLUB", listOrg);
+                } else if (listOrg.size() != 0 && listOrgWithoutMark.size() != 0) {
+                    request.setAttribute("GET_ALL_CLUB", listOrg);
+                } else {
+                    request.setAttribute("GET_ALL_CLUB", listOrg);
+                    request.setAttribute("Message", "Nothing to show.....");
+                }
+            }
+
             String user = request.getParameter("userID");
             if (user != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
@@ -48,10 +68,10 @@ public class UserViewClubList extends HttpServlet {
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
             url = SUCCSES;
-        
+
         } catch (Exception e) {
             e.printStackTrace();
-        
+
         } finally {
             request.getRequestDispatcher(url).forward(request, response);
         }
@@ -69,7 +89,11 @@ public class UserViewClubList extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(UserViewClubList.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -83,7 +107,11 @@ public class UserViewClubList extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(UserViewClubList.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

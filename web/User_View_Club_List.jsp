@@ -186,13 +186,17 @@
                         <div class="col-lg-9 col-12">
                             <article>
                                 <div class="shop-title d-flex flex-wrap justify-content-between">
-                                    <p>Showing <%=list.size()%> Results</p>
+                                    <p>Showing <%if (list == null) {%> 
+                                        0<%} else {%>
+                                        <%=list.size()%>
+                                        <%}%>
+                                        Results</p>
                                     <div class="product-view-mode">
                                         <i class="fas fa-th"></i>
 
                                     </div>
                                 </div>
-
+                                <h1 style="color:#008 "><%=(request.getAttribute("Message") == null) ? "" : request.getAttribute("Message")%></h1>
                                 <div class="shop-product-wrap grids row justify-content-center">
                                     <%for (OrganizationDTO clb : list) {%>
                                     <div class="col-lg-4 col-sm-6 col-12">
@@ -216,43 +220,9 @@
                                                     <a href="#"><i class="icofont-cart-alt"></i></a>
                                                 </div>
                                             </div>
-                                            <div class="product-content">
-                                                <h6><a href="#">Product Title Here</a></h6>
-
-                                                <h6>
-                                                    $200
-                                                </h6>
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                                                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                                                    veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                                                    commodo</p>
-                                            </div>
                                         </div>
                                     </div>
                                     <%}%>
-                                </div>
-
-                                <div class="paginations">
-                                    <ul class="lab-ul d-flex flex-wrap justify-content-center">
-                                        <li>
-                                            <a href="#"><i class="icofont-rounded-double-left"></i></a>
-                                        </li>
-                                        <li class="d-none d-sm-block">
-                                            <a href="#">1</a>
-                                        </li>
-                                        <li class="d-none d-sm-block">
-                                            <a href="#">2</a>
-                                        </li>
-                                        <li class="d-none d-sm-block">
-                                            <a class="dot">...</a>
-                                        </li>
-                                        <li class="d-none d-sm-block">
-                                            <a href="#">5</a>
-                                        </li>
-                                        <li class="d-none d-sm-block">
-                                            <a href="#"><i class="icofont-rounded-double-right"></i></a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </article>
                         </div>
@@ -262,9 +232,10 @@
                                     <div class="widget-header">
                                         <h5>Search keywords</h5>
                                     </div>
-                                    <form action="/" class="search-wrapper">
-                                        <input type="text" name="s" placeholder="Your Search...">
-                                        <button type="submit"><i class="icofont-search-2"></i></button>
+                                    <form action="MainController" method="POST" class="search-wrapper">
+                                        <input class="rounded" type="text" name="search" placeholder="Search Here...">
+                                        <button name="action" value="searchClub" type="submit"><i class="icofont-search-2"></i>
+                                            <input type="hidden" name="userID" value="<%=user.getId()%>" ></button>
                                     </form>
                                 </div>
 

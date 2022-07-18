@@ -204,57 +204,53 @@
                         <div class="row gx-12">
                             <%for (BlogDTO blog : list) {%>
                             <div class="col-lg-6 experience">
-                                <div class="post-item-2">
+                                <article class="fixmarginblog">
+                                    <div class="post-item-2">
 
-                                    <div class="post-inner">
-                                        <div class="post-thumb rounded">
-                                            <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
-                                                <img src="<%=blog.getImgUrl()%>" width="770px" height="370px" alt="blog">
-                                            </a>
-                                        </div>
-                                        <div class="post-content">
-                                            <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
-                                                <p style="font-size: 25px; max-width: 500px ;"><%=blog.getTitle()%></p>
-                                            </a>
-                                            <ul class="lab-ul post-date">
-                                                <li><span><i class="icofont-ui-calendar"></i> <%=blog.getCreateDate()%>
-                                                    </span></li>
-                                                <li><span><i class="icofont-user"></i><a href="#"><%=blog.getOrgName()%></a></span>
-                                                </li>
-                                                <li><span><%=blog.getNumberOfView()%> views</span></li>
-                                            </ul>
-                                            <p><%=blog.getSummary()%></p>
-                                            <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>" class="lab-btn">Read More</a>
+                                        <div class="post-inner">
+                                            <div class="post-thumb rounded">
+                                                <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
+                                                    <img src="<%=blog.getImgUrl()%>" width="770px" height="370px" alt="blog">
+                                                </a>
+                                            </div>
+                                            <div class="post-content">
+                                                <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
+                                                    <p style="font-size: 25px; max-width: 500px ;"><%=blog.getTitle()%></p>
+                                                </a>
+                                                <ul class="lab-ul post-date">
+                                                    <li><span><i class="icofont-ui-calendar"></i> <%=blog.getCreateDate()%>
+                                                        </span></li>
+                                                    <li><span><i class="icofont-user"></i><a href="#"><%=blog.getOrgName()%></a></span>
+                                                    </li>
+                                                    <li><span><%=blog.getNumberOfView()%> views</span></li>
+                                                </ul>
+                                                <p><%=blog.getSummary()%></p>
+                                                <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>" class="lab-btn">Read More</a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </article>
                             </div>      
                             <%}%>
-                            <div class="paginations">
-                                <ul class="lab-ul d-flex flex-wrap justify-content-center mb-1">
-                                    <li>
-                                        <a href="#"><i class="icofont-rounded-double-left"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#">1</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">2</a>
-                                    </li>
-                                    <li class="d-none d-sm-block">
-                                        <a href="#">3</a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="icofont-rounded-double-right"></i></a>
-                                    </li>
-                                </ul>
+                            <div class="col-lg-4 col-md-7 col-12" >
+                                <aside class="fixmarginblog2" style="background: #9673d3;">
+                                    <div class="widget widget-search">
+                                        <div class="widget-header">
+                                            <h5>Search Your keywords</h5>
+                                        </div>
+                                        <form action="/" class="search-wrapper">
+                                            <input  type="text" name="s" placeholder="Search Here...">
+                                            <button type="submit"><i class="icofont-search-2"></i></button>
+                                        </form>
+                                    </div>
+                                </aside>
                             </div>
                         </div>
-
-                    </div>
+                    </div>                    
                 </div>
             </div>
         </div>
+
         <!-- Blog Section ENding Here -->
 
         <!-- Footer Section start here -->

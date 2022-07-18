@@ -54,23 +54,24 @@ public class LoginGoogleHandler extends HttpServlet {
         String roleID = "US";
         String gender = "";
         String phoneNumber = "";
-
+        
+        UserDTO userGmail = getUserInfo(accessToken);
         if (user == null) {
-            UserDTO userGmail = getUserInfo(accessToken);
             UserDTO saveUserGmail = new UserDTO(userGmail.getId(), userGmail.getName(), userGmail.getId(), userGmail.getEmail(), status, typeID, roleID, gender, phoneNumber, userGmail.getPicture());
             dao.signUpByUser(saveUserGmail);
             request.setAttribute("userGmail", userGmail);
             request.getRequestDispatcher("LoginController").forward(request, response);
-        } else {
-            UserDTO userGmail = getUserInfo(accessToken);
+        } else if (user.getId().equals(userGmail.getId())) {
             UserDAO checkGmailUser = new UserDAO();
             userGmail = checkGmailUser.checkUserExist(userGmail.getId());
             request.setAttribute("userGmail", userGmail);
             request.getRequestDispatcher("LoginController").forward(request, response);
-
+        } else if (!user.getId().equals(userGmail.getId())) {
+            request.setAttribute("errMsg", "THIS EMAIL ADDRESS IS ALREADY IN USE BY ANOTHER USER !");
+            request.getRequestDispatcher("UserDataController").forward(request, response);
         }
     }
-
+    
     public static String getToken(String code) throws ClientProtocolException, IOException {
         // call api to get token
         String response = Request.Post(Constants.GOOGLE_LINK_GET_TOKEN)
@@ -79,18 +80,18 @@ public class LoginGoogleHandler extends HttpServlet {
                         .add("redirect_uri", Constants.GOOGLE_REDIRECT_URI).add("code", code)
                         .add("grant_type", Constants.GOOGLE_GRANT_TYPE).build())
                 .execute().returnContent().asString();
-
+        
         JsonObject jobj = new Gson().fromJson(response, JsonObject.class);
         String accessToken = jobj.get("access_token").toString().replaceAll("\"", "");
         return accessToken;
     }
-
+    
     public static UserDTO getUserInfo(final String accessToken) throws ClientProtocolException, IOException {
         String link = Constants.GOOGLE_LINK_GET_USER_INFO + accessToken;
         String response = Request.Get(link).execute().returnContent().asString();
-
+        
         UserDTO googlePojo = new Gson().fromJson(response, UserDTO.class);
-
+        
         return googlePojo;
     }
 

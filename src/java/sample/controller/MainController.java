@@ -109,6 +109,9 @@ public class MainController extends HttpServlet {
     private static final String CHANGE_PASS_BY_USER = "changePassword";
     private static final String CHANGE_PASS_BY_USER_CONTROLLER = "UserChangePasswordController";
 
+    private static final String SEARCH_CLUB_BY_USER = "searchClub";
+    private static final String SEARCH_CLUB_BY_USER_CONTROLLER = "UserViewClubList";
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -190,6 +193,9 @@ public class MainController extends HttpServlet {
 
             } else if (CHANGE_PASS_BY_USER.equals(action)) {
                 url = CHANGE_PASS_BY_USER_CONTROLLER;
+            
+            } else if (SEARCH_CLUB_BY_USER.equals(action)) {
+                url = SEARCH_CLUB_BY_USER_CONTROLLER;
             }
         } catch (Exception e) {
             log("Error at MainController" + e.toString());

@@ -40,7 +40,6 @@ public class UserViewEventList extends HttpServlet {
         try {
             String search = request.getParameter("search");
             String type = request.getParameter("type");
-            System.out.println(type);
             UserDAO viewEventList = new UserDAO();
 
             if (search == null && type == null) {

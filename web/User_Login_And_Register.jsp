@@ -17,7 +17,7 @@
 
     <body>
         <%UserError error = (UserError) request.getAttribute("ERROR");
-        String getRequest = (String) request.getAttribute("request"); %>
+            String getRequest = (String) request.getAttribute("request"); %>
 
         <%if (error == null && request.getAttribute("Message") == null && getRequest.equals("LOGIN")) {%> 
         <div class="container">
@@ -28,6 +28,7 @@
                     <div class="signin-signup">
                         <form action="MainController" method="POST" class="sign-in-form">
                             <h2 class="title">Sign in</h2>
+                            <span style="color:red"><%=(request.getAttribute("errMsg") == null) ? "" : request.getAttribute("errMsg")%></span>
                             <div class="input-field">
                                 <i class="fas fa-user"></i>
                                 <input type="text" placeholder="User Name" name="username">
@@ -36,7 +37,6 @@
                                 <i class="fas fa-lock"></i>
                                 <input type="password" placeholder="Password" name="password">
                             </div>
-                            <span style="color:red"><%=(request.getAttribute("errMsg") == null) ? "" : request.getAttribute("errMsg")%></span>
                             <div style="display: flex;">
                                 <label style="margin-right: 100px;">
                                     <input type="checkbox" checked>

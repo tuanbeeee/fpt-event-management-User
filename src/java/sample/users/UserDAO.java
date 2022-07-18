@@ -165,6 +165,12 @@ public class UserDAO {
 
     private static final String UNPARTICIPANT_BY_USER = "UPDATE tblParticipants SET status = '0' WHERE userID = ? AND eventID = ?";
 
+    private static final String SEARCH_CLUB_BY_USER = "SELECT orgID, orgName, createDate, description, imgUrl, status\n"
+            + "FROM tblOrgPage WHERE statusTypeID ='AP' AND status= 1 AND orgName LIKE ?";
+
+    private static final String SEARCH_CLUB_WITHOUTMARK_BY_USER = "SELECT orgID, orgName, createDate, description, imgUrl, status\n"
+            + "FROM tblOrgPage WHERE statusTypeID ='AP' AND status= 1 AND dbo.ufn_removeMark(orgName) LIKE ?";
+
     public void participantAgainByUser(String userID, String event) throws Exception {
         Connection conn = null;
         PreparedStatement ptm = null;
@@ -1181,6 +1187,78 @@ public class UserDAO {
                 conn.close();
             }
         }
+    }
+
+    public ArrayList<OrganizationDTO> searchOrganization(String search) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        ArrayList<OrganizationDTO> list = new ArrayList<>();
+        try {
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(SEARCH_CLUB_BY_USER);
+            ptm.setString(1, "%" + search + "%");
+            rs = ptm.executeQuery();
+            while (rs.next()) {
+                String orgID = rs.getString("orgID");
+                String orgName = rs.getString("orgName");
+                String createDate = rs.getString("createDate");
+                String description = rs.getString("description");
+                String imgUrl = rs.getString("imgUrl");
+                boolean status = rs.getBoolean("status");
+
+                list.add(new OrganizationDTO(orgID, orgName, createDate, description, imgUrl, status));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return list;
+    }
+
+    public ArrayList<OrganizationDTO> searchOrganizationWithoutMark(String search) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        ArrayList<OrganizationDTO> list = new ArrayList<>();
+        try {
+            conn = DBUtils.getConnection();
+            ptm = conn.prepareStatement(SEARCH_CLUB_WITHOUTMARK_BY_USER);
+            ptm.setString(1, "%" + search + "%");
+            rs = ptm.executeQuery();
+            while (rs.next()) {
+                String orgID = rs.getString("orgID");
+                String orgName = rs.getString("orgName");
+                String createDate = rs.getString("createDate");
+                String description = rs.getString("description");
+                String imgUrl = rs.getString("imgUrl");
+                boolean status = rs.getBoolean("status");
+
+                list.add(new OrganizationDTO(orgID, orgName, createDate, description, imgUrl, status));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return list;
     }
 
     public ArrayList<OrganizationDTO> getAllOrganization() throws SQLException {

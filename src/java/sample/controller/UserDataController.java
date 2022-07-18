@@ -25,8 +25,6 @@ import sample.users.UserDTO;
 public class UserDataController extends HttpServlet {
 
     private static final String ERROR = "error.jsp";
-    private static final String AD_US_FORM = "Admin_UserForm.jsp";
-    private static final String AD_MAN_FORM = "Admin_ManagerForm.jsp";
     private static final String US_FORM = "User_Login_And_Register.jsp";
     private static final String US_PROFILE = "UserProfileController";
     private static final String US_PROFILE_CHANGE_PASS = "changePassword";
@@ -52,16 +50,8 @@ public class UserDataController extends HttpServlet {
             request.setAttribute("listUserType", listType);
 
             String page = request.getParameter("page");
-
-            if (AD_US_FORM.equals(page)) {
-                url = AD_US_FORM;
-
-            } else if (AD_MAN_FORM.equals(page)) {
-                listOrg = dao.getAllOrg();
-                request.setAttribute("listOrg", listOrg);
-                url = AD_MAN_FORM;
-
-            } else if (US_FORM.equals(page)) {
+            
+            if (US_FORM.equals(page)) {
                 if (getRequest.equals("LOGIN")) {
                     request.setAttribute("request", getRequest);
                 } else if (getRequest.equals("REGISTER")) {
@@ -72,6 +62,8 @@ public class UserDataController extends HttpServlet {
             } else if (page == null) {
                 String login = "LOGIN";
                 request.setAttribute("request", login);
+                String message = (String) request.getAttribute("errMsg");
+                request.setAttribute("errMsg", message);
                 url = US_FORM;
 
             } else if (US_PROFILE.equals(page)) {
@@ -81,14 +73,13 @@ public class UserDataController extends HttpServlet {
             } else if (US_PROFILE_CHANGE_PASS.equals(page)) {
                 String confirmOldPass = (String) request.getAttribute("confirmOldPass");
                 request.setAttribute("check", confirmOldPass);
-                
+
                 String correctOldPass = (String) request.getParameter("correctOldPass");
                 request.setAttribute("correctOldPass", correctOldPass);
-                
-                
+
                 url = US_PROFILE;
                 request.setAttribute("edit", "Can Change Pass");
-            
+
             }
         } catch (Exception e) {
             log("Error at UserDataController " + e.toString());
