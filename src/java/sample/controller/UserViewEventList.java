@@ -67,7 +67,6 @@ public class UserViewEventList extends HttpServlet {
             } else if (request.getParameter("search") == null && type != null) {
                 ArrayList<EventPost> listEvtByType = new ArrayList<>();
                 listEvtByType = evtDAO.getEventByTpye(type);
-                System.out.println(listEvtByType);
                 if (listEvtByType.size() != 0) {
                     request.setAttribute("VIEW_EVENT_LIST", listEvtByType);
                 } else {

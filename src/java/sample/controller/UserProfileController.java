@@ -39,7 +39,6 @@ public class UserProfileController extends HttpServlet {
             NotificationDAO notiDAO = new NotificationDAO();
 
             String message = (String) request.getAttribute("Message");
-            System.out.println(message);
             request.setAttribute("GetMessage", message);
 
             if (dto.getId() != null) {

@@ -35,13 +35,54 @@ public class UserViewBlogListController extends HttpServlet {
         String url = ERROR;
 
         try {
-            ArrayList<BlogDTO> list = new ArrayList<>();
+            String search = request.getParameter("search");
             UserDAO dao = new UserDAO();
             NotificationDAO notiDAO = new NotificationDAO();
             BlogDAO blgDAO = new BlogDAO();
-            
-            list = blgDAO.getAllBlog();
-            request.setAttribute("BLOG_LIST", list);
+            ArrayList<BlogDTO> page = new ArrayList<>();
+            int countBlog = 0;
+            int paging = 1;
+            if (request.getParameter("pageging") == null) {
+                paging = 1;
+            } else {
+                paging = Integer.parseInt(request.getParameter("pageging"));
+            }
+            if (search == null) {
+
+                ArrayList<BlogDTO> list = new ArrayList<>();
+                list = blgDAO.getBlogWithPaging(paging);
+                request.setAttribute("BLOG_LIST", list);
+
+            } else if (search != null) {
+
+                ArrayList<BlogDTO> listBlogWithoutMark = new ArrayList<>();
+                ArrayList<BlogDTO> listBlog = new ArrayList<>();
+
+                listBlog = blgDAO.searchBlog(search);
+                listBlogWithoutMark = blgDAO.searhBlogWithoutMark(search);
+
+                if (listBlog.size() == 0 && listBlogWithoutMark.size() != 0) {
+                    request.setAttribute("BLOG_LIST", listBlogWithoutMark);
+
+                } else if (listBlog.size() != 0 && listBlogWithoutMark.size() == 0) {
+                    request.setAttribute("BLOG_LIST", listBlog);
+
+                } else if (listBlog.size() != 0 && listBlogWithoutMark.size() != 0) {
+                    request.setAttribute("BLOG_LIST", listBlog);
+
+                } else {
+                    request.setAttribute("Message", "Nothing to show.....");
+                }
+            }
+            page = blgDAO.getAllBlog();
+            countBlog = page.size();
+            int endPage = 0;
+            endPage = countBlog / 4;
+            if (countBlog % 4 != 0) {
+                endPage++;
+            }
+            System.out.println(endPage);
+            request.setAttribute("paging", endPage);
 
             String user = request.getParameter("userID");
             if (user != null) {

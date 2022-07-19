@@ -38,7 +38,6 @@ public class UserParticipantsEvent extends HttpServlet {
             String eventID = request.getParameter("eventID");
             
             dto = dao.getParticipants(userID, eventID);
-            System.out.println(dto);
             if (request.getParameter("PARTICIPANTS")!= null){
                 if (dto == null && dao.getUnparticipants(userID, eventID) == null){
                     dao.participantsUser(userID, eventID);

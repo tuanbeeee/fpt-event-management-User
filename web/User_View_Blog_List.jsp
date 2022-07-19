@@ -80,7 +80,27 @@
         .hienThi{
             display:block;
         }
-
+        .fixmarginblog2 {
+            margin-right: -300px;
+            margin-left: 330px;
+            background: #9673d3;
+            border-radius: 10px;
+            padding-right: 15px;
+        }  
+        .fixmarginblogsearch {
+            margin-top: 75px;
+            margin-right: -150px;
+            margin-left: 30px;
+            background: #9673d3;
+            border-radius: 10px;
+            padding-right: 15px;
+        }
+        .post-item-2 {
+            background-color: #00102e;
+            box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.1);
+            margin-left: -10px;
+            margin-right: 0px;
+        }
     </style>
 
     <body>
@@ -201,39 +221,91 @@
             <div class="container" >
                 <div class="section-wrapper">
                     <div class="row justify-content-center">
-                        <div class="row gx-12">
-                            <%for (BlogDTO blog : list) {%>
-                            <div class="col-lg-6 experience">
-                                <div class="post-item-2">
-                                    <div class="post-inner">
-                                        <div class="post-thumb rounded">
-                                            <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
-                                                <img src="<%=blog.getImgUrl()%>" width="770px" height="370px" alt="blog">
-                                            </a>
-                                        </div>
-                                        <div class="post-content">
-                                            <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
-                                                <p style="font-size: 25px; max-width: 500px ;"><%=blog.getTitle()%></p>
-                                            </a>
-                                            <ul class="lab-ul post-date">
-                                                <li><span><i class="icofont-ui-calendar"></i> <%=blog.getCreateDate()%>
-                                                    </span></li>
-                                                <li><span><i class="icofont-user"></i><a href="#"><%=blog.getOrgName()%></a></span>
-                                                </li>
-                                                <li><span><%=blog.getNumberOfView()%> views</span></li>
-                                            </ul>
-                                            <p><%=blog.getSummary()%></p>
-                                            <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>" class="lab-btn">Read More</a>
+                        <div class="col-lg-10 col-12 ">
+                            <article class="fixmarginblog" >
+                                <form action="MainController" method="POST">
+                                    <div class="blog-section mt-n4">
+                                        <div class="row gx-12">
+                                            <%if (list == null) {%>
+                                            <h1 style="color:#008 "><%=(request.getAttribute("Message") == null) ? "" : request.getAttribute("Message")%></h1>
+                                            <%} else {%>
+                                            <%for (BlogDTO blog : list) {%>
+                                            <div class="col-lg-6 news experience">
+                                                <!-- Single Blog Start -->
+                                                <div class="post-item-2">
+                                                    <div class="post-inner">
+                                                        <div class="single-blog wow zoomIn" data-wow-delay="0.3s" data-wow-duration="0.5s">
+                                                            <div class="post-thumb rounded">
+                                                                <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
+                                                                    <img src="<%=blog.getImgUrl()%>" width="770px" height="370px" alt="blog">
+                                                                </a>
+                                                            </div>
+                                                            <div class="post-content">
+                                                                <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>">
+                                                                    <p style="font-size: 23px; max-width: 450px ;"><%=blog.getTitle()%></p>
+                                                                </a>
+                                                                <ul class="lab-ul post-date">
+                                                                    <li><span><i class="icofont-ui-calendar"></i> <%=blog.getCreateDate()%>
+                                                                        </span></li>
+                                                                    <li><span><i class="icofont-user"></i><%=blog.getOrgName()%></span>
+                                                                    </li>
+                                                                    <li><span><%=blog.getNumberOfView()%> views</span></li>
+                                                                </ul>
+                                                                <p><%=blog.getSummary()%></p>
+                                                                <a href="MainController?action=ViewBlogDetail&BLOG_ID=<%=blog.getId()%>&userID=<%=user.getId()%>" class="lab-btn">Read More</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Single Blog End -->
+                                            </div>
+                                            <%}%>
+                                            <%}%>
                                         </div>
                                     </div>
-                                </div>
-                            </div>      
-                            <%}%>
+                                </form>
+                            </article>
                         </div>
-                    </div>                    
+                        <div class="col-lg-2 col-md-6 col-10" >
+                            <aside class="fixmarginblogsearch" style="background: #9673d3;">
+                                <div class="widget widget-search">
+                                    <div class="widget-header">
+                                        <h5>Search Your keywords</h5>
+                                    </div>
+                                    <form action="MainController" method="POST" class="search-wrapper">
+                                        <input class="rounded" type="text" name="search" placeholder="Search Here...">
+                                        <button name="action" value="searchBlog" type="submit"><i class="icofont-search-2"></i>
+                                            <input type="hidden" name="userID" value="<%=user.getId()%>" ></button>
+                                    </form>
+                                </div>
+                                <div class="widget widget-category">
+                                    <div class="widget-header">
+                                        <h5>Post Categories</h5>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="paginations">
+                <%int paging = (int) request.getAttribute("paging"); %>
+                <ul class="lab-ul d-flex flex-wrap justify-content-center mb-1">
+                    <li>
+                        <a href="#"><i class="icofont-rounded-double-left"></i></a>
+                    </li>
+                    <%for (int i = 1; i <= paging; i++) {%>
+                    <li>
+                        <a href="MainController?action=ViewBlogList&userID=<%=user.getId()%>&pageging=<%=i%>"><%=i%></a>
+                    </li>
+                    <%}%>
+                    <li>
+                        <a href="#"><i class="icofont-rounded-double-right"></i></a>
+                    </li>
+                </ul>
+            </div>
         </div>
+
 
         <!-- Blog Section ENding Here -->
 

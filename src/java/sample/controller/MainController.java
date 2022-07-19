@@ -112,11 +112,13 @@ public class MainController extends HttpServlet {
     private static final String SEARCH_CLUB_BY_USER = "searchClub";
     private static final String SEARCH_CLUB_BY_USER_CONTROLLER = "UserViewClubList";
 
+    private static final String SEARCH_BLOG_BY_USER = "searchBlog";
+    private static final String SEARCH_BLOG_BY_USER_CONTROLLER = "UserViewBlogListController";
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         String url = ERROR;
-        System.out.println(request.getParameter("email"));
         try {
             String action = request.getParameter("action");
             if (LOGIN.equals(action)) {
@@ -193,9 +195,12 @@ public class MainController extends HttpServlet {
 
             } else if (CHANGE_PASS_BY_USER.equals(action)) {
                 url = CHANGE_PASS_BY_USER_CONTROLLER;
-            
+
             } else if (SEARCH_CLUB_BY_USER.equals(action)) {
                 url = SEARCH_CLUB_BY_USER_CONTROLLER;
+
+            } else if (SEARCH_BLOG_BY_USER.equals(action)) {
+                url = SEARCH_BLOG_BY_USER_CONTROLLER;
             }
         } catch (Exception e) {
             log("Error at MainController" + e.toString());

@@ -56,7 +56,6 @@ public class UserViewClubDetail extends HttpServlet {
             list = evtDAO.getEventPostForClubProfile(clubID);
 
             userFollow = dao.getUserFollowing(userID, orgID);
-            System.out.println(userFollow);
             request.setAttribute("CHECK_USER_FOLLOWING", userFollow);
             request.setAttribute("CLB_INFO", getClubInfo);
             request.setAttribute("EVENT_POST", list);

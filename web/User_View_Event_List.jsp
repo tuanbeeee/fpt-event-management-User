@@ -71,6 +71,14 @@
                 padding-right: 15px;
                 margin-top: -1105px;
             }
+            .fixmarginblogsearch {
+                margin-top: 70px;  
+                margin-right: -150px;
+                margin-left: 30px;
+                background: #9673d3;
+                border-radius: 10px;
+                padding-right: 15px;
+            }
         </style>
     </head>
 
@@ -191,7 +199,6 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-10 col-12 ">
                             <article class="fixmarginblog" >
-
                                 <form action="MainController" method="POST">
                                     <% ArrayList<EventPost> list = new ArrayList<>();
                                         list = (ArrayList<EventPost>) request.getAttribute("VIEW_EVENT_LIST");%>
@@ -233,7 +240,7 @@
                             </article>
                         </div>
                         <div class="col-lg-2 col-md-6 col-10" >
-                            <aside class="fixmarginblog2" style="background: #9673d3;">
+                            <aside class="fixmarginblogsearch" style="background: #9673d3;">
                                 <div class="widget widget-search">
                                     <div class="widget-header">
                                         <h5>Search Your keywords</h5>

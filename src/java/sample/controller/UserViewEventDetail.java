@@ -71,11 +71,9 @@ public class UserViewEventDetail extends HttpServlet {
             int view = evtDAO.getAnEvent(eventID).getNumberOfView() + 1;
             EventPost numberOfView = new EventPost(eventID, view);
             evtDAO.countNumberOfView(numberOfView);
-//            System.out.println(eventID);
             ParticipantsDTO dto = new ParticipantsDTO();
             dto = dao.getParticipants(userID, eventID);
             request.setAttribute("CHECK_PARTICIPANTS", dto);
-//            System.out.println(dto);
 
             EventPost getEventPostDetail = evtDAO.getAnEvent(eventID);
             request.setAttribute("USER_VIEW_EVENT_DETAIL", getEventPostDetail);

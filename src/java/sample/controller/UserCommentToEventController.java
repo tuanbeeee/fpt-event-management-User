@@ -46,7 +46,6 @@ public class UserCommentToEventController extends HttpServlet {
             String comment = request.getParameter("comment");
             String replyID = request.getParameter("replyID");
             String reply = request.getParameter("reply");
-            System.out.println(replyID);
             long millis = System.currentTimeMillis();
             Date today = new Date(millis);
 

@@ -207,38 +207,7 @@
                                         </ul>
                                         <p class="context"><%=blogDetail.getContent()%>
                                         </p>
-                                        <div class="tags-area">
-                                            <ul class="tags lab-ul justify-content-center">
-                                                <li>
-                                                    <a href="#" class="active">Event</a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" class="active">NoneProfit</a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" class="active">Admission</a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" class="active">Exams</a>
-                                                </li>
-                                            </ul>
-
-                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div id="respond" class="comment-respond rounded">
-                                <h6 class="h7">Leave a Comment</h6>
-                                <div class="add-comment">
-                                    <form action="#" method="post" id="commentform" class="comment-form">
-                                        <input name="name" type="text" value="" placeholder="Name*">
-                                        <input name="email" type="text" value="" placeholder="Email*">
-                                        <input name="url" type="text" value="" placeholder="Website*" class="w-100">
-                                        <textarea id="comment-reply" name="comment" rows="7"
-                                                  placeholder="Type Here Your Comment*"></textarea>
-                                        <button type="submit" class="lab-btn"><span>Send Comment</span></button>
-                                    </form>
                                 </div>
                             </div>
                         </div>
