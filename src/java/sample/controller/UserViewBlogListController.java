@@ -14,7 +14,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sample.blog.BlogDTO;
+import sample.notification.NotificationDAO;
 import sample.notification.NotificationDTO;
+import sample.posts.BlogDAO;
 import sample.users.UserDAO;
 
 /**
@@ -35,13 +37,16 @@ public class UserViewBlogListController extends HttpServlet {
         try {
             ArrayList<BlogDTO> list = new ArrayList<>();
             UserDAO dao = new UserDAO();
-            list = dao.getAllBlog();
+            NotificationDAO notiDAO = new NotificationDAO();
+            BlogDAO blgDAO = new BlogDAO();
+            
+            list = blgDAO.getAllBlog();
             request.setAttribute("BLOG_LIST", list);
 
             String user = request.getParameter("userID");
             if (user != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = dao.getNotification(user);
+                getNoti = notiDAO.getNotification(user);
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
 

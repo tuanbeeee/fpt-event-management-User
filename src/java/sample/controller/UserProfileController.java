@@ -13,7 +13,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import sample.notification.NotificationDAO;
 import sample.notification.NotificationDTO;
+import sample.posts.BlogDAO;
 import sample.users.UserDAO;
 import sample.users.UserDTO;
 
@@ -34,6 +36,7 @@ public class UserProfileController extends HttpServlet {
         try {
             UserDTO dto = (UserDTO) request.getSession().getAttribute("LOGIN_USER");;
             UserDAO dao = new UserDAO();
+            NotificationDAO notiDAO = new NotificationDAO();
 
             String message = (String) request.getAttribute("Message");
             System.out.println(message);
@@ -41,7 +44,7 @@ public class UserProfileController extends HttpServlet {
 
             if (dto.getId() != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = dao.getNotification(dto.getId());
+                getNoti = notiDAO.getNotification(dto.getId());
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
             url = SUCCESS;

@@ -8,149 +8,184 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.NamingException;
+import sample.blog.BlogDTO;
 import sample.posts.Blog;
 import sample.posts.EventPost;
 import sample.util.DBUtils;
 
 public class BlogDAO {
 
-    private static final String GET_ALL_BLOG = "SELECT blogID, orgID, status, title, createDate, content, imgUrl, numberOfView, summary \n"
-            + "FROM tblBlog";
+    private static final String GET_ALL_BLOG = "SELECT blogID, tblBlog.orgID AS org_ID, orgName, tblBlog.status AS Blog_status, title, tblBlog.createDate AS create_Date, content, tblBlog.imgUrl AS img_URL, numberOfView, summary FROM tblBlog, tblOrgPage WHERE tblBlog.orgID = tblOrgPage.orgID AND tblBlog.status = '1'";
 
-    private static final String GET_A_BLOG_BY_ID = "SELECT blogID, orgID, status, title, createDate, content, imgUrl, numberOfView, summary \n"
-            + "FROM tblBlog WHERE blogID = ?";
+    private static final String GET_BLOG_DETAIL = "SELECT blogID, tblBlog.orgID AS org_ID, orgName, tblBlog.status AS Blog_status, title, tblBlog.createDate AS create_Date, content, tblBlog.imgUrl AS img_URL, numberOfView, summary FROM tblBlog, tblOrgPage WHERE tblBlog.orgID = tblOrgPage.orgID AND tblBlog.status = '1' AND blogID = ?";
 
-    private static final String GET_ALL_BLOG_BY_ORG = "SELECT blogID, orgID, status, title, createDate, content, imgUrl, numberOfView, summary\n"
-            + "FROM tblBlog WHERE orgID = ?";
+    private static final String COUNT_BLOG_VIEW_NUMBER = "UPDATE tblBlog SET  numberOfView = ? WHERE blogID = ?";
 
-    private static final String GET_ALL_BLOG_BY_TITLE = "SELECT blogID, orgID, status, title, createDate, content, imgUrl, numberOfView, summary \n"
-            + "FROM tblBlog WHERE dbo.ufn_removeMark(title) LIKE ? OR title LIKE ?";
+    private static final String GET_NEWEST_BLOG = "SELECT TOP 4 blogID, tblBlog.orgID AS org_ID, orgName, tblBlog.status AS Blog_status, title, tblBlog.createDate AS create_Date, content, tblBlog.imgUrl AS img_URL, numberOfView, summary FROM tblBlog, tblOrgPage WHERE tblBlog.orgID = tblOrgPage.orgID AND tblBlog.status = '1' ORDER BY blogID  DESC";
 
-    public List<Blog> getAllBlog() throws SQLException {
+    public BlogDTO getBlogDetail(String blogID) throws SQLException {
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement ptm = null;
         ResultSet rs = null;
-
-        List<Blog> listBlog = new ArrayList<>();
-        try {
-            conn = DBUtils.getConnection();
-            ps = conn.prepareStatement(GET_ALL_BLOG);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String id = rs.getString("blogID");
-                String orgID = rs.getString("orgID");
-                String createDate = rs.getString("createDate");
-                String content = rs.getString("content");
-                String title = rs.getString("title");
-                String imgUrl = rs.getString("imgUrl");
-                int numberOfView = rs.getInt("numberOfView");
-                String summary = rs.getString("summary");
-                Boolean status = rs.getBoolean("status");
-
-                Blog blog = new Blog(id, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
-                listBlog.add(blog);
-            }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return listBlog;
-    }
-
-    public Blog getAnBlogByID(String blogID) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        Blog blog = new Blog();
-        try {
-            conn = DBUtils.getConnection();
-            ps = conn.prepareStatement(GET_A_BLOG_BY_ID);
-            ps.setString(1, blogID);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                String id = rs.getString("blogID");
-                String orgID = rs.getString("orgID");
-                String createDate = rs.getString("createDate");
-                String content = rs.getString("content");
-                String title = rs.getString("title");
-                String imgUrl = rs.getString("imgUrl");
-                int numberOfView = rs.getInt("numberOfView");
-                String summary = rs.getString("summary");
-                Boolean status = rs.getBoolean("status");
-
-                blog = new Blog(id, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
-            }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return blog;
-    }
-
-    public List<Blog> getListBlogByTitle(String search) throws SQLException {
-        List<Blog> listBlog = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        String sql = GET_BLOG_DETAIL;
+        boolean status = true;
+        BlogDTO blogDetail = new BlogDTO();
 
         try {
             conn = DBUtils.getConnection();
             if (conn != null) {
-                ps = conn.prepareStatement(GET_ALL_BLOG_BY_TITLE);
-                ps.setString(1, "%" + search + "%");
-                ps.setString(2, "%" + search + "%");
+                ptm = conn.prepareStatement(sql);
+                ptm.setString(1, blogID);
+                rs = ptm.executeQuery();
 
-                rs = ps.executeQuery();
                 while (rs.next()) {
-                    String id = rs.getString("blogID");
-                    String orgID = rs.getString("orgID");
-                    String createDate = rs.getString("createDate");
+
+                    String orgID = rs.getString("org_ID");
+                    String createDate = rs.getString("create_Date");
                     String content = rs.getString("content");
                     String title = rs.getString("title");
-                    String imgUrl = rs.getString("imgUrl");
                     int numberOfView = rs.getInt("numberOfView");
                     String summary = rs.getString("summary");
-                    Boolean status = rs.getBoolean("status");
+                    String imgURL = rs.getString("img_URL");
+                    String orgName = rs.getString("orgName");
 
-                    Blog blog = new Blog(id, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
-                    listBlog.add(blog);
+                    blogDetail = new BlogDTO(orgName, blogID, orgID, title, content, createDate, imgURL, numberOfView, summary, status);
+
                 }
             }
-
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
             }
         }
-        return listBlog;
-
+        return blogDetail;
     }
 
+    public void countBlogViewNumber(BlogDTO blog) throws SQLException, NamingException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        String sql = COUNT_BLOG_VIEW_NUMBER;
+
+        try {
+            conn = DBUtils.getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+
+                ptm.setInt(1, blog.getNumberOfView());
+                ptm.setString(2, blog.getId());
+                ptm.executeUpdate();
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    public ArrayList<BlogDTO> getNewestBlog() throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = GET_NEWEST_BLOG;
+        boolean status = true;
+        ArrayList<BlogDTO> blogList = new ArrayList<>();
+
+        try {
+            conn = DBUtils.getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                rs = ptm.executeQuery();
+
+                while (rs.next()) {
+                    String blogID = rs.getString("blogID");
+                    String orgID = rs.getString("org_ID");
+                    String createDate = rs.getString("create_Date");
+                    String content = rs.getString("content");
+                    String title = rs.getString("title");
+                    int numberOfView = rs.getInt("numberOfView");
+                    String summary = rs.getString("summary");
+                    String imgURL = rs.getString("img_URL");
+                    String orgName = rs.getString("orgName");
+
+                    BlogDTO blogInfo = new BlogDTO(orgName, blogID, orgID, title, content, createDate, imgURL, numberOfView, summary, status);
+
+                    blogList.add(blogInfo);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return blogList;
+    }
+
+    public ArrayList<BlogDTO> getAllBlog() throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = GET_ALL_BLOG;
+        boolean status = true;
+        ArrayList<BlogDTO> blogList = new ArrayList<>();
+
+        try {
+            conn = DBUtils.getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                rs = ptm.executeQuery();
+
+                while (rs.next()) {
+                    String blogID = rs.getString("blogID");
+                    String orgID = rs.getString("org_ID");
+                    String createDate = rs.getString("create_Date");
+                    String content = rs.getString("content");
+                    String title = rs.getString("title");
+                    int numberOfView = rs.getInt("numberOfView");
+                    String summary = rs.getString("summary");
+                    String imgURL = rs.getString("img_URL");
+                    String orgName = rs.getString("orgName");
+
+                    BlogDTO blogInfo = new BlogDTO(orgName, blogID, orgID, title, content, createDate, imgURL, numberOfView, summary, status);
+
+                    blogList.add(blogInfo);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return blogList;
+    }
 }

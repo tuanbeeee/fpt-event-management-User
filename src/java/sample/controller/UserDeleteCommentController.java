@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import sample.comment.CommentSectionDAO;
 import sample.users.UserDAO;
 
 /**
@@ -34,7 +35,7 @@ public class UserDeleteCommentController extends HttpServlet {
             String commentID = request.getParameter("commentID");
             String eventID = request.getParameter("eventID");
 
-            UserDAO dao = new UserDAO();
+            CommentSectionDAO dao = new CommentSectionDAO();
 
             dao.deleteComment(userID, commentID);
             

@@ -10,10 +10,13 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.NamingException;
+import sample.eventtype.EventTypeDTO;
 import sample.posts.EventLocation;
 import sample.posts.EventPost;
 import sample.posts.EventType;
@@ -25,207 +28,328 @@ import sample.util.DBUtils;
  */
 public class EventDAO {
 
-    private static final String GET_ALL_EVENT_POST = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, \n"
-            + "			status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
+    private static final String VIEW_EVENT_LIST_BY_USER = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, \n"
+            + "            tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
             + "            FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
-            + "            WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID\n";
+            + "            WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
+            + "			tblEventPost.statusTypeID = tblStatusType.statusTypeID AND tblEventPost.status = ? AND tblStatusType.statusTypeID =?";
 
-    private static final String GET_ALL_EVENT_BY_TITLE = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, \n"
-            + "            status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
-            + "            FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
-            + "            WHERE (dbo.ufn_removeMark(tblEventPost.title) LIKE ? or title LIKE ?)\n"
-            + "            and tblEventPost.eventTypeID = tblEventType.eventTypeID and \n"
-            + "            tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID";
+    private static final String VIEW_EVENT_DETAIL_BY_USER = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes, participationLimit\n"
+            + "                    FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
+            + "                    WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
+            + "                    tblEventPost.statusTypeID = tblStatusType.statusTypeID AND eventID = ?";
 
-    private static final String GET_AN_EVENT_BY_ID = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, \n"
-            + "            status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
-            + "            FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
-            + "            WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID \n"
-            + "            and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.eventID LIKE ?\n";
+    private static final String COUNT_NUMBER_OF_VIEW = "UPDATE tblEventPost SET  numberOfView = ? WHERE eventID = ?";
 
-    private static final String ADD_AN_EVENT = "INSERT INTO tblEventPost (eventID, status, createDate, takePlaceDate, content, title, location, imgUrl, eventTypeID, numberOfView, speaker, summary) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+    private static final String GET_ALL_EVENT_INFO_FOR_USER_HOMEPAGE = "SELECT eventID, tblEventPost.orgID as org_ID, tblEventPost.createDate as evt_CreateDate, takePlaceDate, content, title, location, tblEventPost.imgUrl as evt_Img, tblEventPost.eventTypeID as evt_TypeID, numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes, tblOrgPage.imgUrl as org_Img, tblOrgPage.orgName as org_Name, tblOrgPage.description as org_Description \n"
+            + "FROM tblEventPost, tblEventType, tblLocation, tblStatusType, tblOrgPage\n"
+            + "WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.orgID = tblOrgPage.orgID AND tblEventPost.status = ? AND tblStatusType.statusTypeID =?";
 
-    private static final String CHECK_EVENT_DUPLICATE = "SELECT eventID FROM tblEventPost where eventID = ?";
+    private static final String GET_EVENT_BY_DATE = "SELECT eventID, tblEventPost.orgID as org_ID, tblEventPost.createDate as evt_CreateDate, takePlaceDate, content, title, location, tblEventPost.imgUrl as evt_Img, tblEventPost.eventTypeID as evt_TypeID, numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes, tblOrgPage.imgUrl as org_Img, tblOrgPage.orgName as org_Name, tblOrgPage.description as org_Description \n"
+            + "FROM tblEventPost, tblEventType, tblLocation, tblStatusType, tblOrgPage\n"
+            + "WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.orgID = tblOrgPage.orgID AND tblEventPost.status = ? AND tblStatusType.statusTypeID =? AND takePlaceDate =?";
 
-    private static final String UPDATE_AN_EVENT = "UPDATE [dbo].[tblEventPost]\n"
-            + "   SET [status] = ?\n"
-            + "      ,[createDate] = ?\n"
-            + "      ,[takePlaceDate] = ?\n"
-            + "      ,[content] = ?\n"
-            + "      ,[title] = ?\n"
-            + "      ,[location] = ?\n"
-            + "      ,[imgUrl] = ?\n"
-            + "      ,[eventTypeID] = ?\n"
-            + "      ,[numberOfView] = ?\n"
-            + "      ,[speaker] = ?\n"
-            + "      ,[summary] = ?\n"
-            + " WHERE eventID = ?";
+    private static final String GET_NEWEST_EVENT = "SELECT TOP 4 eventID, tblEventPost.orgID as org_ID, tblEventPost.createDate as evt_CreateDate, takePlaceDate, \n"
+            + "content, title, location, tblEventPost.imgUrl as evt_Img, tblEventPost.eventTypeID as evt_TypeID, \n"
+            + "numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, \n"
+            + "eventTypeName, locationName, approvalDes, tblOrgPage.imgUrl as org_Img, tblOrgPage.orgName as org_Name, \n"
+            + "tblOrgPage.description as org_Description \n"
+            + "FROM tblEventPost, tblEventType, tblLocation, tblStatusType, tblOrgPage\n"
+            + "WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.orgID = tblOrgPage.orgID AND tblEventPost.status = ? AND tblStatusType.statusTypeID = ? ORDER BY eventID  DESC";
 
-    private static final String GET_ALL_EVENT_TYPE = "SELECT eventTypeID, eventTypeName\n"
-            + "FROM tblEventType";
+    private static final String SEARCH_EVENT_WITHOUT_MARK = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, \n"
+            + "                       tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
+            + "                       FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
+            + "                       WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
+            + "            		   tblEventPost.statusTypeID = tblStatusType.statusTypeID AND  tblEventPost.status = 'True' AND tblStatusType.statusTypeID = 'AP' AND dbo.ufn_removeMark(title) like ?";
 
-    private static final String GET_ALL_EVENT_LOCATION = "SELECT locationID, locationName\n"
-            + "FROM tblLocation";
+    private static final String SEARCH_EVENT = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID, numberOfView, speaker, summary, \n"
+            + "                       tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
+            + "                       FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
+            + "                       WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
+            + "            		   tblEventPost.statusTypeID = tblStatusType.statusTypeID AND  tblEventPost.status = 'True' AND tblStatusType.statusTypeID = 'AP' AND title like ?";
 
-    private static final String GET_NUMBER_OF_PARTICIPANTS = "SELECT COUNT(userID) as total\n"
-            + "  FROM tblParticipants\n"
-            + "  Where eventID = ?";
+    private static final String GET_ALL_EVENT_INFO_FOR_CLUB_PROFILE = "SELECT eventID, tblEventPost.orgID as org_ID, tblEventPost.createDate as evt_CreateDate, takePlaceDate, content, title, location, tblEventPost.imgUrl as evt_Img, tblEventPost.eventTypeID as evt_TypeID, numberOfView, speaker, summary, tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes, tblOrgPage.imgUrl as org_Img, tblOrgPage.orgName as org_Name, tblOrgPage.description as org_Description\n"
+            + "            FROM tblEventPost, tblEventType, tblLocation, tblStatusType, tblOrgPage\n"
+            + "            WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.orgID = tblOrgPage.orgID AND tblEventPost.status = ? AND tblStatusType.statusTypeID =? AND tblEventPost.orgID = ?";
 
-    private static final String GET_ALL_EVENT_BY_ORG = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID,\n"
-            + "numberOfView, speaker, summary, status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
-            + "FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
-            + "WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID\n"
-            + "and tblEventPost.statusTypeID = tblStatusType.statusTypeID and tblEventPost.orgID = ?";
+    private static final String GET_EVENT_TYPE = "SELECT eventTypeID, eventTypeName, status FROM tblEventType WHERE status = '1'";
 
-    public List<EventPost> getAllEvent() throws SQLException {
+    private static final String GET_EVENT_BY_EVENT_TYPE = "SELECT eventID, orgID, createDate, takePlaceDate, content, title, location, imgUrl, tblEventPost.eventTypeID AS evtTypeID, numberOfView, speaker, summary, \n"
+            + "                                   tblEventPost.status, tblEventPost.statusTypeID, statusTypeName, eventTypeName, locationName, approvalDes\n"
+            + "                                   FROM tblEventPost, tblEventType, tblLocation, tblStatusType\n"
+            + "                                   WHERE tblEventPost.eventTypeID = tblEventType.eventTypeID and tblEventPost.location = tblLocation.locationID and\n"
+            + "                        		   tblEventPost.statusTypeID = tblStatusType.statusTypeID AND  tblEventPost.status = 'True' AND tblStatusType.statusTypeID = 'AP' AND tblEventPost.eventTypeID = ?";
 
+    public ArrayList<EventTypeDTO> getAllEventType() throws Exception {
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement ptm = null;
         ResultSet rs = null;
+        String sql = GET_EVENT_TYPE;
 
-        List<EventPost> listEvent = new ArrayList<>();
-        try {
-            conn = DBUtils.getConnection();
-            ps = conn.prepareStatement(GET_ALL_EVENT_POST);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String id = rs.getString("eventID");
-                String orgID = rs.getString("orgID");
-                String createDate = rs.getString("createDate");
-                String takePlaceDate = rs.getString("takePlaceDate");
-                String content = rs.getString("content");
-                String title = rs.getString("title");
-                String location = rs.getString("location");
-                String imgUrl = rs.getString("imgUrl");
-                String eventType = rs.getString("eventTypeID");
-                int numberOfView = rs.getInt("numberOfView");
-                String speaker = rs.getString("speaker");
-                String summary = rs.getString("summary");
-                Boolean status = rs.getBoolean("status");
-                String eventTypeName = rs.getString("eventTypeName");
-                String locationName = rs.getString("locationName");
-                String statusTypeID = rs.getString("statusTypeID");
-                String statusTypeName = rs.getString("statusTypeName");
-                String approvalDes = rs.getString("approvalDes");
-
-                EventPost event = new EventPost(takePlaceDate, location, eventType, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, id, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
-                listEvent.add(event);
-            }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return listEvent;
-
-    }
-
-    public List<EventPost> getListEventByTitle(String search) throws SQLException {
-        List<EventPost> listEvent = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
+        ArrayList<EventTypeDTO> lst = new ArrayList<>();
         try {
             conn = DBUtils.getConnection();
             if (conn != null) {
-                ps = conn.prepareStatement(GET_ALL_EVENT_BY_TITLE);
-                ps.setString(1, "%" + search + "%");
-                ps.setString(2, "%" + search + "%");
-
-                rs = ps.executeQuery();
+                ptm = conn.prepareStatement(sql);
+                rs = ptm.executeQuery();
                 while (rs.next()) {
-                    String id = rs.getString("eventID");
-                    String orgID = rs.getString("orgID");
-                    String createDate = rs.getString("createDate");
-                    String takePlaceDate = rs.getString("takePlaceDate");
-                    String content = rs.getString("content");
-                    String title = rs.getString("title");
-                    String location = rs.getString("location");
-                    String imgUrl = rs.getString("imgUrl");
-                    String eventType = rs.getString("eventTypeID");
-                    int numberOfView = rs.getInt("numberOfView");
-                    String speaker = rs.getString("speaker");
-                    String summary = rs.getString("summary");
-                    Boolean status = rs.getBoolean("status");
+                    int eventTypeID = rs.getInt("eventTypeID");
                     String eventTypeName = rs.getString("eventTypeName");
-                    String locationName = rs.getString("locationName");
-                    String statusTypeID = rs.getString("statusTypeID");
-                    String statusTypeName = rs.getString("statusTypeName");
-                    String approvalDes = rs.getString("approvalDes");
+                    boolean status = rs.getBoolean("status");
 
-                    EventPost event = new EventPost(takePlaceDate, location, eventType, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, id, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
-                    listEvent.add(event);
+                    EventTypeDTO cb = new EventTypeDTO(eventTypeID, eventTypeName, status);
+
+                    lst.add(cb);
                 }
             }
-
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
             }
         }
-        return listEvent;
+        return lst;
+
     }
 
-    public EventPost getAnEventByID(String eventID) throws SQLException {
+    public ArrayList<EventPost> getEventByTpye(String type) throws SQLException {
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement ptm = null;
         ResultSet rs = null;
+        String sql = GET_EVENT_BY_EVENT_TYPE;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
+
+        try {
+            conn = DBUtils.getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                ptm.setString(1, type);
+                rs = ptm.executeQuery();
+
+                while (rs.next()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String takePlaceDate = rs.getString("takePlaceDate");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+                        String eventID = rs.getString("eventID");
+                        String orgID = rs.getString("orgID");
+                        String createDate = rs.getString("createDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrl = rs.getString("imgUrl");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, type, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, eventID, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
+
+                        eventList.add(eventPostInfo);
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return eventList;
+    }
+
+    public ArrayList<EventPost> getEventPostForClubProfile(String orgID) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = GET_ALL_EVENT_INFO_FOR_CLUB_PROFILE;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
+
+        try {
+            conn = DBUtils.getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                ptm.setBoolean(1, status);
+                ptm.setString(2, statusTypeID);
+                ptm.setString(3, orgID);
+                rs = ptm.executeQuery();
+
+                while (rs.next()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String takePlaceDate = rs.getString("takePlaceDate");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+                        String eventID = rs.getString("eventID");
+                        String createDate = rs.getString("evt_CreateDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrlEvent = rs.getString("evt_Img");
+                        String eventTypeID = rs.getString("evt_TypeID");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+                        String imgURLCLB = rs.getString("org_Img");
+                        String clbName = rs.getString("org_Name");
+                        String clbDes = rs.getString("org_Description");
+
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, imgURLCLB, clbName, clbDes, eventID, orgID, title, content, createDate, imgUrlEvent, numberOfView, summary, status);
+
+                        eventList.add(eventPostInfo);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return eventList;
+    }
+
+    public ArrayList<EventPost> getAllEventList() throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = VIEW_EVENT_LIST_BY_USER;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
+
+        try {
+            conn = DBUtils.getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                ptm.setBoolean(1, status);
+                ptm.setString(2, statusTypeID);
+                rs = ptm.executeQuery();
+
+                while (rs.next()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String takePlaceDate = rs.getString("takePlaceDate");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+                        String eventID = rs.getString("eventID");
+                        String orgID = rs.getString("orgID");
+                        String createDate = rs.getString("createDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrl = rs.getString("imgUrl");
+                        String eventTypeID = rs.getString("eventTypeID");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, eventID, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
+
+                        eventList.add(eventPostInfo);
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return eventList;
+    }
+
+    public EventPost getAnEvent(String eventID) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = VIEW_EVENT_DETAIL_BY_USER;
         EventPost event = new EventPost();
         try {
+
             conn = DBUtils.getConnection();
             if (conn != null) {
-                ps = conn.prepareStatement(GET_AN_EVENT_BY_ID);
-                ps.setString(1, "%" + eventID + "%");
-
-                rs = ps.executeQuery();
+                ptm = conn.prepareStatement(sql);
+                ptm.setString(1, eventID);
+                rs = ptm.executeQuery();
                 if (rs.next()) {
-                    String id = rs.getString("eventID");
+                    String takePlaceDate = rs.getString("takePlaceDate");
                     String orgID = rs.getString("orgID");
                     String createDate = rs.getString("createDate");
-                    String takePlaceDate = rs.getString("takePlaceDate");
                     String content = rs.getString("content");
                     String title = rs.getString("title");
                     String location = rs.getString("location");
                     String imgUrl = rs.getString("imgUrl");
-                    String eventType = rs.getString("eventTypeID");
+                    String eventTypeID = rs.getString("eventTypeID");
                     int numberOfView = rs.getInt("numberOfView");
                     String speaker = rs.getString("speaker");
                     String summary = rs.getString("summary");
-                    Boolean status = rs.getBoolean("status");
+                    String statusTypeName = rs.getString("statusTypeName");
                     String eventTypeName = rs.getString("eventTypeName");
                     String locationName = rs.getString("locationName");
-                    String statusTypeID = rs.getString("statusTypeID");
-                    String statusTypeName = rs.getString("statusTypeName");
                     String approvalDes = rs.getString("approvalDes");
+                    int participationLimit = rs.getInt("participationLimit");
+                    boolean status = true;
+                    String statusTypeID = "AP";
 
-                    event = new EventPost(takePlaceDate, location, eventType, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, id, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
+                    event = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, eventID, orgID, title, content, createDate, imgUrl, numberOfView, summary, status, participationLimit);
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
@@ -234,222 +358,344 @@ public class EventDAO {
         return event;
     }
 
-    public boolean checkEventIDDuplicate(String eventID) throws SQLException {
+    public void countNumberOfView(EventPost event) throws SQLException, NamingException {
         Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        boolean check = true;
-        String checkID = null;
+        PreparedStatement ptm = null;
+        String sql = COUNT_NUMBER_OF_VIEW;
+
         try {
             conn = DBUtils.getConnection();
             if (conn != null) {
-                ps = conn.prepareStatement(CHECK_EVENT_DUPLICATE);
-                ps.setString(1, eventID);
-                rs = ps.executeQuery();
+                ptm = conn.prepareStatement(sql);
+
+                ptm.setInt(1, event.getNumberOfView());
+                ptm.setString(2, event.getId());
+                ptm.executeUpdate();
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    public ArrayList<EventPost> getInfoForHomePage() throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        String sql = GET_ALL_EVENT_INFO_FOR_USER_HOMEPAGE;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
+
+        try {
+            conn = DBUtils.getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                ptm.setBoolean(1, status);
+                ptm.setString(2, statusTypeID);
+                rs = ptm.executeQuery();
+
                 while (rs.next()) {
-                    checkID = rs.getString("eventID");
-                }
-                if (checkID == null) {
-                    check = false;
-                }
-            }
 
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        return check;
-    }
+                    String takePlaceDate = rs.getString("takePlaceDate");
+                    String eventID = rs.getString("eventID");
+                    String orgID = rs.getString("org_ID");
+                    String createDate = rs.getString("evt_CreateDate");
+                    String content = rs.getString("content");
+                    String title = rs.getString("title");
+                    String location = rs.getString("location");
+                    String imgUrlEvent = rs.getString("evt_Img");
+                    String eventTypeID = rs.getString("evt_TypeID");
+                    int numberOfView = rs.getInt("numberOfView");
+                    String speaker = rs.getString("speaker");
+                    String summary = rs.getString("summary");
+                    String statusTypeName = rs.getString("statusTypeName");
+                    String eventTypeName = rs.getString("eventTypeName");
+                    String locationName = rs.getString("locationName");
+                    String approvalDes = rs.getString("approvalDes");
+                    String imgURLCLB = rs.getString("org_Img");
+                    String clbName = rs.getString("org_Name");
+                    String clbDes = rs.getString("org_Description");
 
-    public boolean createAnEvent(EventPost event) throws SQLException {
-        boolean check = false;
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+                    EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, imgURLCLB, clbName, clbDes, eventID, orgID, title, content, createDate, imgUrlEvent, numberOfView, summary, status);
 
-        try {
-            conn = DBUtils.getConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(ADD_AN_EVENT);
-                ps.setString(1, event.getId());
-                ps.setString(2, null);
-                ps.setDate(3, Date.valueOf(event.getCreateDate()));
-                ps.setDate(4, Date.valueOf(event.getTakePlaceDate()));
-                ps.setString(5, event.getContent());
-                ps.setString(6, event.getTitle());
-                ps.setString(7, event.getLocation());
-                ps.setString(8, event.getImgUrl());
-                ps.setString(9, event.getEventType());
-                ps.setInt(10, event.getNumberOfView());
-                ps.setString(11, event.getSpeaker());
-                ps.setString(12, event.getSummary());
-
-                if (ps.executeUpdate() > 0) {
-                    check = true;
+                    eventList.add(eventPostInfo);
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
             }
         }
-        return check;
+        return eventList;
     }
 
-    public boolean updateAnEvent(EventPost event) throws SQLException {
-        boolean check = false;
+    public ArrayList<EventPost> getEventByDate(String takePlaceDate) throws SQLException {
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement ptm = null;
         ResultSet rs = null;
+        String sql = GET_EVENT_BY_DATE;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
 
         try {
             conn = DBUtils.getConnection();
             if (conn != null) {
-                ps = conn.prepareStatement(UPDATE_AN_EVENT);
-                ps.setBoolean(1, event.isStatus());
-                ps.setDate(2, Date.valueOf(event.getCreateDate()));
-                ps.setDate(3, Date.valueOf(event.getTakePlaceDate()));
-                ps.setString(4, event.getContent());
-                ps.setString(5, event.getTitle());
-                ps.setString(6, event.getLocation());
-                ps.setString(7, event.getImgUrl());
-                ps.setString(8, event.getEventType());
-                ps.setInt(9, event.getNumberOfView());
-                ps.setString(10, event.getSpeaker());
-                ps.setString(11, event.getSummary());
-                ps.setString(12, event.getId());
+                ptm = conn.prepareStatement(sql);
+                ptm.setBoolean(1, status);
+                ptm.setString(2, statusTypeID);
+                ptm.setString(3, takePlaceDate);
+                rs = ptm.executeQuery();
 
-                int checkUpdate = ps.executeUpdate();
-                if (checkUpdate > 0) {
-                    check = true;
+                while (rs.next()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+                        String eventID = rs.getString("eventID");
+                        String orgID = rs.getString("org_ID");
+                        String createDate = rs.getString("evt_CreateDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrlEvent = rs.getString("evt_Img");
+                        String eventTypeID = rs.getString("evt_TypeID");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+                        String imgURLCLB = rs.getString("org_Img");
+                        String clbName = rs.getString("org_Name");
+                        String clbDes = rs.getString("org_Description");
+
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, imgURLCLB, clbName, clbDes, eventID, orgID, title, content, createDate, imgUrlEvent, numberOfView, summary, status);
+
+                        eventList.add(eventPostInfo);
+                    }
+
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
             }
         }
-        return check;
+        return eventList;
     }
 
-    public List<EventType> getAllEventType() throws SQLException {
+    public ArrayList<EventPost> getNewestEvent() throws SQLException {
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement ptm = null;
         ResultSet rs = null;
+        String sql = GET_NEWEST_EVENT;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
 
-        List<EventType> listTypes = new ArrayList<>();
         try {
             conn = DBUtils.getConnection();
-            ps = conn.prepareStatement(GET_ALL_EVENT_TYPE);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String eventTypeID = rs.getString("eventTypeID");
-                String eventTypeName = rs.getString("eventTypeName");
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                ptm.setBoolean(1, status);
+                ptm.setString(2, statusTypeID);
+                rs = ptm.executeQuery();
 
-                EventType evtType = new EventType(eventTypeID, eventTypeName);
-                listTypes.add(evtType);
+                while (rs.next()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String takePlaceDate = rs.getString("takePlaceDate");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+
+                        String eventID = rs.getString("eventID");
+                        String orgID = rs.getString("org_ID");
+                        String createDate = rs.getString("evt_CreateDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrlEvent = rs.getString("evt_Img");
+                        String eventTypeID = rs.getString("evt_TypeID");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+                        String imgURLCLB = rs.getString("org_Img");
+                        String clbName = rs.getString("org_Name");
+                        String clbDes = rs.getString("org_Description");
+
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, imgURLCLB, clbName, clbDes, eventID, orgID, title, content, createDate, imgUrlEvent, numberOfView, summary, status);
+
+                        eventList.add(eventPostInfo);
+                    }
+
+                }
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
             }
         }
-        return listTypes;
+        return eventList;
     }
 
-    public List<EventLocation> getAllEventLocation() throws SQLException {
+    public ArrayList<EventPost> searchEventWithoutMark(String search) throws SQLException {
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement ptm = null;
         ResultSet rs = null;
+        String sql = SEARCH_EVENT_WITHOUT_MARK;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
 
-        List<EventLocation> listLocations = new ArrayList<>();
         try {
             conn = DBUtils.getConnection();
-            ps = conn.prepareStatement(GET_ALL_EVENT_LOCATION);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String locationID = rs.getString("locationID");
-                String locationName = rs.getString("locationName");
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                ptm.setString(1, "%" + search + "%");
+                rs = ptm.executeQuery();
 
-                EventLocation evtLocation = new EventLocation(locationID, locationName);
-                listLocations.add(evtLocation);
+                while (rs.next()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String takePlaceDate = rs.getString("takePlaceDate");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+                        String eventID = rs.getString("eventID");
+                        String orgID = rs.getString("orgID");
+                        String createDate = rs.getString("createDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrl = rs.getString("imgUrl");
+                        String eventTypeID = rs.getString("eventTypeID");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, eventID, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
+
+                        eventList.add(eventPostInfo);
+                    }
+
+                }
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
             }
         }
-        return listLocations;
+        return eventList;
     }
 
-    public int getNumberOfParticipants(String eventID) throws SQLException {
+    public ArrayList<EventPost> searchEvent(String search) throws SQLException {
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement ptm = null;
         ResultSet rs = null;
-        int total = 0;
+        String sql = SEARCH_EVENT;
+        boolean status = true;
+        String statusTypeID = "AP";
+        ArrayList<EventPost> eventList = new ArrayList<>();
+
         try {
             conn = DBUtils.getConnection();
-            ps = conn.prepareStatement(GET_NUMBER_OF_PARTICIPANTS);
-            ps.setString(1, eventID);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                total = rs.getInt("total");
+            if (conn != null) {
+                ptm = conn.prepareStatement(sql);
+                ptm.setString(1, "%" + search + "%");
+                rs = ptm.executeQuery();
+
+                while (rs.next()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String takePlaceDate = rs.getString("takePlaceDate");
+                    long millis = System.currentTimeMillis();
+                    Date today = new Date(millis);
+                    if (sdf.parse(takePlaceDate).before(today) == false) {
+                        String eventID = rs.getString("eventID");
+                        String orgID = rs.getString("orgID");
+                        String createDate = rs.getString("createDate");
+                        String content = rs.getString("content");
+                        String title = rs.getString("title");
+                        String location = rs.getString("location");
+                        String imgUrl = rs.getString("imgUrl");
+                        String eventTypeID = rs.getString("eventTypeID");
+                        int numberOfView = rs.getInt("numberOfView");
+                        String speaker = rs.getString("speaker");
+                        String summary = rs.getString("summary");
+                        String statusTypeName = rs.getString("statusTypeName");
+                        String eventTypeName = rs.getString("eventTypeName");
+                        String locationName = rs.getString("locationName");
+                        String approvalDes = rs.getString("approvalDes");
+
+                        EventPost eventPostInfo = new EventPost(takePlaceDate, location, eventTypeID, speaker, eventTypeName, locationName, statusTypeID, statusTypeName, approvalDes, eventID, orgID, title, content, createDate, imgUrl, numberOfView, summary, status);
+
+                        eventList.add(eventPostInfo);
+                    }
+
+                }
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(EventDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (rs != null) {
                 rs.close();
             }
-            if (ps != null) {
-                ps.close();
+            if (ptm != null) {
+                ptm.close();
             }
             if (conn != null) {
                 conn.close();
             }
         }
-        return total;
+        return eventList;
     }
 
 }

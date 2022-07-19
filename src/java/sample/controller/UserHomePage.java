@@ -16,7 +16,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sample.blog.BlogDTO;
+import sample.notification.NotificationDAO;
 import sample.notification.NotificationDTO;
+import sample.posts.BlogDAO;
+import sample.posts.EventDAO;
 import sample.posts.EventPost;
 import sample.users.UserDAO;
 import sample.users.UserDTO;
@@ -38,35 +41,38 @@ public class UserHomePage extends HttpServlet {
         try {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             UserDAO dao = new UserDAO();
+            EventDAO evtDAO = new EventDAO();
+            BlogDAO blgDAO = new BlogDAO();
+            NotificationDAO notiDAO = new NotificationDAO();
 
             ArrayList<EventPost> getEventNextDate = new ArrayList<>();
-            getEventNextDate = dao.getEventByDate(dateFormat.format(dao.getTomorow()));
+            getEventNextDate = evtDAO.getEventByDate(dateFormat.format(dao.getTomorow()));
             String tomorrow = dateFormat.format(dao.getTomorow());
             request.setAttribute("EVENT_TOMOROW", getEventNextDate);
             request.setAttribute("GET_TOMORROW", tomorrow);
 
             ArrayList<EventPost> getEventTheDayAfterTomorrow = new ArrayList<>();
-            getEventTheDayAfterTomorrow = dao.getEventByDate(dateFormat.format(dao.getTheDayAfterTomorow()));
+            getEventTheDayAfterTomorrow = evtDAO.getEventByDate(dateFormat.format(dao.getTheDayAfterTomorow()));
             String theDayAfterTomorrow = dateFormat.format(dao.getTheDayAfterTomorow());
             request.setAttribute("EVENT_THE_DAY_AFTER_TOMORROW", getEventTheDayAfterTomorrow);
             request.setAttribute("GET_THE_DAY_AFTER_TOMORROW", theDayAfterTomorrow);
 
             ArrayList<EventPost> getImgCLB = new ArrayList<>();
-            getImgCLB = dao.getInfoForHomePage();
+            getImgCLB = evtDAO.getInfoForHomePage();
             request.setAttribute("IMG_CLB", getImgCLB);
 
             ArrayList<EventPost> getNewestEvent = new ArrayList<>();
-            getNewestEvent = dao.getNewestEvent();
+            getNewestEvent = evtDAO.getNewestEvent();
             request.setAttribute("GET_NEWEST_EVENT", getNewestEvent);
 
             ArrayList<BlogDTO> getNewestBlog = new ArrayList<>();
-            getNewestBlog = dao.getNewestBlog();
+            getNewestBlog = blgDAO.getNewestBlog();
             request.setAttribute("GET_NEWEST_BLOG", getNewestBlog);
 
             UserDTO user = (UserDTO) request.getSession().getAttribute("LOGIN_USER");
             if (user != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = dao.getNotification(user.getId());
+                getNoti = notiDAO.getNotification(user.getId());
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
 

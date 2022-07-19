@@ -19,7 +19,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sample.eventtype.EventTypeDTO;
+import sample.notification.NotificationDAO;
 import sample.notification.NotificationDTO;
+import sample.posts.EventDAO;
 import sample.posts.EventPost;
 import sample.users.UserDAO;
 
@@ -40,18 +42,19 @@ public class UserViewEventList extends HttpServlet {
         try {
             String search = request.getParameter("search");
             String type = request.getParameter("type");
-            UserDAO viewEventList = new UserDAO();
+            EventDAO evtDAO = new EventDAO();
+            NotificationDAO notiDAO = new NotificationDAO();
 
             if (search == null && type == null) {
                 ArrayList<EventPost> list = new ArrayList<>();
-                list = viewEventList.getAllEventList();
+                list = evtDAO.getAllEventList();
                 request.setAttribute("VIEW_EVENT_LIST", list);
 
             } else if (request.getParameter("search") != null && type == null) {
                 ArrayList<EventPost> listEvtWithoutMark = new ArrayList<>();
                 ArrayList<EventPost> listEvt = new ArrayList<>();
-                listEvt = viewEventList.searchEvent(search);
-                listEvtWithoutMark = viewEventList.searchEventWithoutMark(search);
+                listEvt = evtDAO.searchEvent(search);
+                listEvtWithoutMark = evtDAO.searchEventWithoutMark(search);
                 if (listEvt.size() == 0 && listEvtWithoutMark.size() != 0) {
                     request.setAttribute("VIEW_EVENT_LIST", listEvtWithoutMark);
                 } else if (listEvt.size() != 0 && listEvtWithoutMark.size() == 0) {
@@ -63,7 +66,7 @@ public class UserViewEventList extends HttpServlet {
                 }
             } else if (request.getParameter("search") == null && type != null) {
                 ArrayList<EventPost> listEvtByType = new ArrayList<>();
-                listEvtByType = viewEventList.getEventByTpye(type);
+                listEvtByType = evtDAO.getEventByTpye(type);
                 System.out.println(listEvtByType);
                 if (listEvtByType.size() != 0) {
                     request.setAttribute("VIEW_EVENT_LIST", listEvtByType);
@@ -75,12 +78,12 @@ public class UserViewEventList extends HttpServlet {
             String user = request.getParameter("userID");
             if (user != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = viewEventList.getNotification(user);
+                getNoti = notiDAO.getNotification(user);
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
 
             ArrayList<EventTypeDTO> getEvtType = new ArrayList<EventTypeDTO>();
-            getEvtType = viewEventList.getAllEventType();
+            getEvtType = evtDAO.getAllEventType();
             request.setAttribute("EVENT_TYPE", getEvtType);
 
             url = SUCCESS;

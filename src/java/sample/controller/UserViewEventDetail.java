@@ -14,8 +14,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import sample.comment.CommentSectionDAO;
 import sample.comment.CommentSectionDTO;
+import sample.notification.NotificationDAO;
 import sample.notification.NotificationDTO;
+import sample.posts.EventDAO;
 import sample.posts.EventPost;
 import sample.users.ParticipantsDTO;
 import sample.users.UserDAO;
@@ -39,10 +42,9 @@ public class UserViewEventDetail extends HttpServlet {
             String getEventIDForEventDetail = (String) request.getAttribute("EVENT_DETAIL_ID");
 
             String getEventIDWhenComment = (String) request.getAttribute("eventID");
-   
 
             String getUserIDWhenComment = (String) request.getAttribute("userName");
-            
+
             String userID = null;
             String eventID = null;
 
@@ -54,39 +56,42 @@ public class UserViewEventDetail extends HttpServlet {
             } else {
                 eventID = request.getParameter("EVENT_ID");
             }
-            
-            if (getUserIDWhenComment != null){
+
+            if (getUserIDWhenComment != null) {
                 userID = getUserIDWhenComment;
             } else {
                 userID = request.getParameter("username");
             }
 
             UserDAO dao = new UserDAO();
+            EventDAO evtDAO = new EventDAO();
+            CommentSectionDAO cmtDAO = new CommentSectionDAO();
+            NotificationDAO notiDAO = new NotificationDAO();
 
-            int view = dao.getAnEvent(eventID).getNumberOfView() + 1;
+            int view = evtDAO.getAnEvent(eventID).getNumberOfView() + 1;
             EventPost numberOfView = new EventPost(eventID, view);
-            dao.countNumberOfView(numberOfView);
+            evtDAO.countNumberOfView(numberOfView);
 //            System.out.println(eventID);
             ParticipantsDTO dto = new ParticipantsDTO();
             dto = dao.getParticipants(userID, eventID);
             request.setAttribute("CHECK_PARTICIPANTS", dto);
 //            System.out.println(dto);
 
-            EventPost getEventPostDetail = dao.getAnEvent(eventID);
+            EventPost getEventPostDetail = evtDAO.getAnEvent(eventID);
             request.setAttribute("USER_VIEW_EVENT_DETAIL", getEventPostDetail);
-            
+
             ArrayList<ParticipantsDTO> list = new ArrayList<>();
             list = dao.getParticipantsList(eventID);
             int participationLimit = 99 + list.size();
             request.setAttribute("PARTICIPATIONLIMIT", participationLimit);
 
             ArrayList<CommentSectionDTO> comment = new ArrayList<CommentSectionDTO>();
-            comment = dao.getComment(eventID);
+            comment = cmtDAO.getComment(eventID);
             request.setAttribute("COMMENT", comment);
-            
+
             if (userID != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = dao.getNotification(userID);
+                getNoti = notiDAO.getNotification(userID);
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
 

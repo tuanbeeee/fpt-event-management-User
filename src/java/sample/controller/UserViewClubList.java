@@ -16,7 +16,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import sample.notification.NotificationDAO;
 import sample.notification.NotificationDTO;
+import sample.organization.OrganizationDAO;
 import sample.organization.OrganizationDTO;
 import sample.users.UserDAO;
 
@@ -38,17 +40,19 @@ public class UserViewClubList extends HttpServlet {
         try {
 
             ArrayList<OrganizationDTO> list = new ArrayList<>();
-            UserDAO getAllClub = new UserDAO();
+            NotificationDAO notiDAO = new NotificationDAO();
+            OrganizationDAO orgDAO = new OrganizationDAO();
+
             String search = request.getParameter("search");
 
             if (search == null) {
-                list = getAllClub.getAllOrganization();
+                list = orgDAO.getAllOrganization();
                 request.setAttribute("GET_ALL_CLUB", list);
             } else if (search != null) {
                 ArrayList<OrganizationDTO> listOrgWithoutMark = new ArrayList<>();
                 ArrayList<OrganizationDTO> listOrg = new ArrayList<>();
-                listOrgWithoutMark = getAllClub.searchOrganizationWithoutMark(search);
-                listOrg = getAllClub.searchOrganization(search);
+                listOrgWithoutMark = orgDAO.searchOrganizationWithoutMark(search);
+                listOrg = orgDAO.searchOrganization(search);
                 if (listOrg.size() == 0 && listOrgWithoutMark.size() != 0) {
                     request.setAttribute("GET_ALL_CLUB", listOrgWithoutMark);
                 } else if (listOrg.size() != 0 && listOrgWithoutMark.size() == 0) {
@@ -64,7 +68,7 @@ public class UserViewClubList extends HttpServlet {
             String user = request.getParameter("userID");
             if (user != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = getAllClub.getNotification(user);
+                getNoti = notiDAO.getNotification(user);
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
             url = SUCCSES;

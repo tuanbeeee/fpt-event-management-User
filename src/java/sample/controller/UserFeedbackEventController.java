@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import sample.feedback.UserFeedbackDAO;
 import sample.feedback.UserFeedbackDTO;
 import sample.users.UserDAO;
 
@@ -28,19 +29,19 @@ public class UserFeedbackEventController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+
         String url = ERROR;
-        
+
         try {
             String userID = request.getParameter("userID");
             String eventID = request.getParameter("eventID");
             String content = request.getParameter("content");
-            
+
             request.setAttribute("userName", userID);
             request.setAttribute("eventID", eventID);
-            
+
             UserFeedbackDTO dto = new UserFeedbackDTO();
-            UserDAO dao = new UserDAO();
+            UserFeedbackDAO dao = new UserFeedbackDAO();
 
             dto = new UserFeedbackDTO(userID, eventID, content);
 
@@ -52,8 +53,7 @@ public class UserFeedbackEventController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally{
+        } finally {
             request.getRequestDispatcher(url).forward(request, response);
         }
     }

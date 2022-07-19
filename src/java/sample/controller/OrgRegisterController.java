@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import sample.organization.OrganizationDAO;
 import sample.organization.OrganizationDTO;
 import sample.users.UserDAO;
 import sample.users.UserError;
@@ -31,15 +32,17 @@ public class OrgRegisterController extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         String url = ERROR;
         boolean check = true;
-        UserDAO dao = new UserDAO();
+        OrganizationDAO orgDao = new OrganizationDAO();
+        UserDAO userDAO = new UserDAO();
+
         OrganizationDTO dto = new OrganizationDTO();
         UserError error = new UserError();
         try {
 
             String orgID = request.getParameter("orgID");
-            OrganizationDTO checkOrgIDExist = dao.checkOrgIDExist(orgID);
+            OrganizationDTO checkOrgIDExist = orgDao.checkOrgIDExist(orgID);
 
-            if (dao.checkInputOrgID(orgID) == false) {
+            if (orgDao.checkInputOrgID(orgID) == false) {
                 error.setIdError("User name must be 3-16 characters!");
                 check = false;
             } else if (checkOrgIDExist != null) {
@@ -49,8 +52,8 @@ public class OrgRegisterController extends HttpServlet {
             String clubName = request.getParameter("clubName");
 
             String email = request.getParameter("email");
-            OrganizationDTO checkOrgEmailExist = dao.checkOrgeEmailExist(email);
-            if (dao.checkInputMail(email) == false) {
+            OrganizationDTO checkOrgEmailExist = orgDao.checkOrgeEmailExist(email);
+            if (userDAO.checkInputMail(email) == false) {
                 error.setEmailError("Wrong input email!");
                 check = false;
             }
@@ -78,7 +81,7 @@ public class OrgRegisterController extends HttpServlet {
                 url = ERROR;
             } else {
                 dto = new OrganizationDTO(orgID, clubName, createDate, description, imgURL, status, email, statusTypeID);
-                if (dao.signUpByOrg(dto)) {
+                if (orgDao.signUpByOrg(dto)) {
                     request.setAttribute("Message", "Successfully submitted account registration request.\n"
                             + "Please wait for confirmation !");
                     url = SUCCESS;

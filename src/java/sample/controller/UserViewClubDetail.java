@@ -13,9 +13,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import sample.notification.NotificationDAO;
 import sample.notification.NotificationDTO;
+import sample.organization.OrganizationDAO;
 import sample.organization.OrganizationDTO;
 import sample.organization.OrganizationFollowerDTO;
+import sample.posts.EventDAO;
 import sample.posts.EventPost;
 import sample.users.UserDAO;
 
@@ -41,23 +44,26 @@ public class UserViewClubDetail extends HttpServlet {
             String clubID = request.getParameter("CLUB_ID");
 
             UserDAO dao = new UserDAO();
+            OrganizationDAO orgDAO = new OrganizationDAO();
+            EventDAO evtDAO = new EventDAO();
+            NotificationDAO notiDAO = new NotificationDAO();
 
             ArrayList<EventPost> list = new ArrayList<>();
             OrganizationDTO getClubInfo = new OrganizationDTO();
             OrganizationFollowerDTO userFollow = new OrganizationFollowerDTO();
 
-            getClubInfo = dao.getAClubInfo(clubID);
-            list = dao.getEventPostForClubProfile(clubID);
+            getClubInfo = orgDAO.getAClubInfo(clubID);
+            list = evtDAO.getEventPostForClubProfile(clubID);
 
             userFollow = dao.getUserFollowing(userID, orgID);
             System.out.println(userFollow);
             request.setAttribute("CHECK_USER_FOLLOWING", userFollow);
             request.setAttribute("CLB_INFO", getClubInfo);
             request.setAttribute("EVENT_POST", list);
-            
+
             if (userID != null) {
                 ArrayList<NotificationDTO> getNoti = new ArrayList<>();
-                getNoti = dao.getNotification(userID);
+                getNoti = notiDAO.getNotification(userID);
                 request.setAttribute("GET_NOTIFICATION", getNoti);
             }
 
