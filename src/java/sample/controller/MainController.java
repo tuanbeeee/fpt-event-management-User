@@ -115,6 +115,9 @@ public class MainController extends HttpServlet {
     private static final String SEARCH_BLOG_BY_USER = "searchBlog";
     private static final String SEARCH_BLOG_BY_USER_CONTROLLER = "UserViewBlogListController";
 
+    private static final String READ_QR_CODE = "readQRCode";
+    private static final String READ_QR_CODE_CONTROLLER = "ReadQRCodeController";
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -201,6 +204,9 @@ public class MainController extends HttpServlet {
 
             } else if (SEARCH_BLOG_BY_USER.equals(action)) {
                 url = SEARCH_BLOG_BY_USER_CONTROLLER;
+
+            } else if (READ_QR_CODE.equals(action)) {
+                url = READ_QR_CODE_CONTROLLER;
             }
         } catch (Exception e) {
             log("Error at MainController" + e.toString());

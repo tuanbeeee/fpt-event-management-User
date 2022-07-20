@@ -5,72 +5,55 @@
  */
 package sample.controller;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
-import sample.users.ParticipantsDTO;
-import sample.users.UserDAO;
 
 /**
  *
  * @author Tuan Be
  */
-@WebServlet(name = "UserParticipantsEvent", urlPatterns = {"/UserParticipantsEvent"})
-public class UserParticipantsEvent extends HttpServlet {
+@WebServlet(name = "GenerateQRCodeController", urlPatterns = {"/GenerateQRCodeController"})
+public class GenerateQRCodeController extends HttpServlet {
 
-    private static final String SUCCESS = "UserViewEventDetail";
-    private static final String ERROR = "error.jsp";
-
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        HttpSession session = request.getSession();
-        String url = ERROR;
         try {
-            UserDAO dao = new UserDAO();
-            ParticipantsDTO dto = new ParticipantsDTO();
-            String userID = request.getParameter("username");
-            String eventID = request.getParameter("eventID");
-
-            dto = dao.getParticipants(userID, eventID);
-            if (request.getParameter("PARTICIPANTS") != null) {
-                if (dto == null && dao.getUnparticipants(userID, eventID) == null) {
-                    ByteArrayOutputStream out = QRCode.from("http://localhost:8084/EventManagement/MainController?action=readQRCode&userID=" + userID + "&eventID=" + eventID + "").to(
-                            ImageType.PNG).stream();
-                    FileOutputStream fout = new FileOutputStream(new File(
-                            "D:\\QR-Code\\" + userID + "_" + eventID + ".JPG"));
-                    fout.write(out.toByteArray());
-                    fout.flush();
-                    fout.close();
-                    dao.participantsUser(userID, eventID);
-                    url = SUCCESS;
-                } else if (dao.getUnparticipants(userID, eventID) != null) {
-                    dao.participantAgainByUser(userID, eventID);
-                    url = SUCCESS;
-                }
-            } else if (request.getParameter("UNPARTICIPANTS") != null) {
-                if (dto != null) {
-                    dao.unparticipantByUser(userID, eventID);
-                    url = SUCCESS;
-                }
-            }
-
-            request.setAttribute("EVENT_DETAIL_ID", eventID);
-
+            String qrtext = request.getParameter("qrtext");
+            ByteArrayOutputStream out = QRCode.from("facebook.com/" + qrtext).to(
+                    ImageType.PNG).stream();
+            FileOutputStream fout = new FileOutputStream(new File(
+                    "D:\\QR-Code\\EVT1_TUANTRAN.JPG"));
+            fout.write(out.toByteArray());
+            fout.flush();
+            fout.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            request.getRequestDispatcher(url).forward(request, response);
         }
     }
 
